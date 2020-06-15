@@ -1,0 +1,44 @@
+{
+	clean =
+	{
+		default = [["./output/*",[".c",".o"],""],["./library/*",[".a",".so"],""],["./output/",["string","buffer"],""]]
+	},
+	cPreprocess =
+	{
+		default = "./output/DARK.c"
+	},
+	commit =
+	{
+		default = ""
+	},
+	execute =
+	{
+		c =
+		[
+			"gcc -std=c11 -Wall -Wextra -Wno-address -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'",
+			"ar rc './library/libdark.a' './output/DARK.o'",
+			"gcc -std=c11 -Wall -Wextra -shared -fPIC -o'./library/libdark.so' './output/DARK.o'"
+		],
+		example =
+		[
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/string' './example/string.c' -I './include/' -L './library/' -l:libdark.a -lpthread"#,
+			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/buffer' './example/buffer.c' -I './include/' -L './library/' -l:libdark.a -lpthread"
+		]
+	},
+	merge =
+	{
+		default =
+		{
+			input = [["./source/",["header","error","unsafe","safe","helper","endian","mutex","block","blob","string"#,"buffer"#],".c"]],
+			output = "./output/DARK.c"
+		}
+	},
+	macro =
+	{
+		build-library = ["merge","cPreprocess","execute:c"],
+		build-example = ["execute:example"],
+		build-all = ["build-library","build-example"],
+		commit = "commit",
+		clean = "clean"
+	}
+}
