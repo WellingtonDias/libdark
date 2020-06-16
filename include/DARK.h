@@ -107,9 +107,10 @@ void dkString_debug(DKstring *STRING,DKchar *LABEL);
 #define DARK_BUFFER_F32BE   16
 #define DARK_BUFFER_F64LE   17
 #define DARK_BUFFER_F64BE   18
-#define DARK_BUFFER_STRING  19
+#define DARK_BUFFER_NSTRING 19
+#define DARK_BUFFER_RSTRING 20
 
-DKstring *dkBuffer_create(void);
+DKbuffer *dkBuffer_create(void);
 DKbuffer *dkBuffer_createFromRaw(DKu8 *SOURCE,DKusize SIZE,DKssize START,DKssize END);
 DKbuffer *dkBuffer_createFromCopy(DKbuffer *BUFFER,DKssize START,DKssize END);
 DKbuffer *dkBuffer_createFromFile(DKchar *FILE_NAME,DKssize START,DKssize END);

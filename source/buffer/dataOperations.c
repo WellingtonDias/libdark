@@ -1,32 +1,33 @@
-#macro buffer_getScalar(SOURCE,TYPE,SOURCE,SIZE)
+#macro buffer_getScalar(SCALAR,TYPE,SOURCE,SIZE)
 {
 	if (TYPE < DARK_BUFFER_NSTRING)
 	{
-		SOURCE = (DKu8*) &SOURCE;
+		SOURCE = (DKu8*) &SCALAR;
 		SIZE = BufferSize[TYPE];
-		if ((TYPE >= DARK_BUFFER_U16LE) && (TYPE <= DARK_BUFFER_F64BE))
-		{
-			if ((TYPE % 2) == 1) scalar_swapToLE(SOURCE,SIZE);
-			else scalar_swapToBE(SOURCE,SIZE);
-		}
 	}
 	else
 	{
 		switch (TYPE)
 		{
 			case DARK_BUFFER_NSTRING:
-			case DARK_BUFFER_CSTRING:
+			case DARK_BUFFER_RSTRING:
 			{
-				SOURCE = (DKu8*) SOURCE.nstring;
-				SIZE = strlen(SOURCE.nstring);
+				SOURCE = (DKu8*) SCALAR.nstring;
+				SIZE = strlen(SCALAR.nstring);
 				if (TYPE == DARK_BUFFER_NSTRING) ++SIZE;
-				else if (SIZE == 0) error_throw("invalid SOURCE");
+				else if (SIZE == 0) error_throw("invalid SCALAR");
 				break;
 			}
 			default: error_throw("invalid TYPE");
 		}
 	}
 }
+
+// if ((TYPE >= DARK_BUFFER_U16LE) && (TYPE <= DARK_BUFFER_F64BE))
+// {
+// 	if ((TYPE % 2) == 1) scalar_swapToLE(SOURCE,SIZE);
+// 	else scalar_swapToBE(SOURCE,SIZE);
+// }
 
 void dkBuffer_insertScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
 {
@@ -76,7 +77,7 @@ void dkBuffer_insertRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 *SOURCE,DKusize S
 	safe_end(BUFFER);
 }
 
-void dkBuffer_writeScalar(DKbuffer *BUFFER,DKu8 TYPE,DKscalar SOURCE)
+void dkBuffer_writeScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
 {
 	DKu8 *source = NULL;
 	DKusize size = 0;
@@ -89,7 +90,7 @@ void dkBuffer_writeScalar(DKbuffer *BUFFER,DKu8 TYPE,DKscalar SOURCE)
 	safe_end(BUFFER);
 }
 
-void dkBuffer_writeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE,DKscalar SOURCE)
+void dkBuffer_writeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKscalar SOURCE,DKu8 TYPE)
 {
 	DKusize offset = 0;
 	DKu8 *source = NULL;
@@ -141,15 +142,9 @@ void dkBuffer_writeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 *SOURCE,DKusize SI
 	if (TYPE > DARK_BUFFER_NSTRING) error_throwCastReturn("invalid TYPE",DKscalar);
 	if (TYPE != DARK_BUFFER_NSTRING)
 	{
-		source = &SCALAR;
 		SIZE = BufferSize[TYPE];
 		if ((DKssize) OFFSET > (DKssize) BLOCK.size - (DKssize) SIZE) error_throwCastReturn("invalid OFFSET",DKscalar);
 		memcpy(&SCALAR,BLOCK.source + OFFSET,SIZE);
-		if ((TYPE >= DARK_BUFFER_U16LE) && (TYPE <= DARK_BUFFER_F64BE))
-		{
-			if ((TYPE % 2) == 1) endian_swapToLE((U8*) source,SIZE);
-			else endian_swapToBE((U8*) source,SIZE);
-		}
 	}
 	else
 	{
@@ -159,6 +154,12 @@ void dkBuffer_writeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 *SOURCE,DKusize SI
 		memcpy(SCALAR.nstring,BLOCK.source + OFFSET,SIZE);
 	}
 }
+
+// if ((TYPE >= DARK_BUFFER_U16LE) && (TYPE <= DARK_BUFFER_F64BE))
+// {
+// 	if ((TYPE % 2) == 1) endian_swapToLE((U8*) source,SIZE);
+// 	else endian_swapToBE((U8*) source,SIZE);
+// }
 
 DKscalar dkBuffer_readScalar(DKbuffer *BUFFER,DKu8 TYPE)
 {
@@ -264,7 +265,7 @@ void dkBuffer_removeScalar(DKbuffer *BUFFER,DKu8 TYPE)
 {
 	safe_start(BUFFER);
 	if (TYPE > DARK_BUFFER_F64BE) error_throw("invalid TYPE");
-	block_remove(BLOCK,DKu8,BUFFER->offset,BufferSize[TYPE]);
+	block_remove(BUFFER->block,DKu8,BUFFER->offset,BufferSize[TYPE]);
 	safe_end(BUFFER);
 }
 
@@ -279,7 +280,7 @@ void dkBuffer_removeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 void dkBuffer_removeRaw(DKbuffer *BUFFER,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	block_remove(BLOCK,DKu8,BUFFER->offset,SIZE);
+	block_remove(BUFFER->block,DKu8,BUFFER->offset,SIZE);
 	safe_end(BUFFER);
 }
 
