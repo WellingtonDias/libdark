@@ -21,11 +21,12 @@ typedef struct _string DKstring;
 typedef struct _buffer DKbuffer;
 
 // Constants
-#define DARK_ABSOLUTE 0
-#define DARK_RELATIVE 1
-#define DARK_START    2
-#define DARK_CURRENT  3
-#define DARK_END      4
+#define DARK_AUTO     0
+#define DARK_ABSOLUTE 1
+#define DARK_RELATIVE 2
+#define DARK_START    3
+#define DARK_CURRENT  4
+#define DARK_END      5
 
 // Error
 void dkError_start(void);
@@ -88,9 +89,10 @@ DKstring *dkString_destroy(DKstring *STRING);
 void dkString_debug(DKstring *STRING,DKcharacter *LABEL);
 
 // Buffer
-#define DARK_BUFFER_SYSTEM_ENDIAN 0
-#define DARK_BUFFER_LITTLE_ENDIAN 1
-#define DARK_BUFFER_BIG_ENDIAN    2
+#define DARK_BUFFER_UNDEFINED_ENDIAN 0
+#define DARK_BUFFER_LITTLE_ENDIAN    1
+#define DARK_BUFFER_BIG_ENDIAN       2
+#define DARK_BUFFER_SYSTEM_ENDIAN    3
 
 #define DARK_BUFFER_BOOLEAN    0
 #define DARK_BUFFER_U8         1
@@ -136,6 +138,7 @@ DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
 		void dkBuffer_removeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE);
 		void dkBuffer_removeRaw(DKbuffer *BUFFER,DKusize SIZE);
 		void dkBuffer_removeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKusize SIZE);
+			void dkBuffer_setEndian(DKbuffer *BUFFER,DKu8 ENDIAN);
 			DKu8 dkBuffer_getEndian(DKbuffer *BUFFER);
 			DKusize dkBuffer_setOffset(DKbuffer *BUFFER,DKu8 KIND,DKssize OFFSET);
 			DKusize dkBuffer_resetOffset(DKbuffer *BUFFER);

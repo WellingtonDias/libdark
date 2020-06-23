@@ -33,7 +33,6 @@
 	#local DKusize size;
 	size = ((INDEX > BLOCK.size)? INDEX : BLOCK.size) + SIZE;
 	block_increase(BLOCK,TYPE,size);
-	error_bypass();
 	if (INDEX > BLOCK.size) memset(BLOCK.source + BLOCK.size,0,(INDEX - BLOCK.size) * sizeof(TYPE));
 	else memmove(BLOCK.source + INDEX + SIZE,BLOCK.source + INDEX,(BLOCK.size - INDEX) * sizeof(TYPE));
 	memcpy(BLOCK.source + INDEX,SOURCE,SIZE * sizeof(TYPE));
@@ -45,7 +44,6 @@
 	if (INDEX + SIZE > BLOCK.size)
 	{
 		block_increase(BLOCK,TYPE,INDEX + SIZE);
-		error_bypass();
 		if (INDEX > BLOCK.size) memset(BLOCK.source + BLOCK.size,0,(INDEX - BLOCK.size) * sizeof(TYPE));
 		BLOCK.size = INDEX + SIZE;
 	};

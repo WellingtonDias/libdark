@@ -1,3 +1,10 @@
+void dkBuffer_setEndian(DKbuffer *BUFFER,DKu8 ENDIAN)
+{
+	safe_start(BUFFER);
+	buffer_calculateEndian(BUFFER,ENDIAN,BUFFER->endian);
+	safe_end(BUFFER);
+};
+
 DKu8 dkBuffer_getEndian(DKbuffer *BUFFER)
 {
 	unsafe_start();
@@ -8,14 +15,7 @@ DKusize dkBuffer_setOffset(DKbuffer *BUFFER,DKu8 KIND,DKssize OFFSET)
 {
 	DKssize newOffset = 0;
 	safe_start(BUFFER);
-	switch (KIND)
-	{
-		case DARK_START: newOffset = OFFSET; break;
-		case DARK_CURRENT: newOffset = BUFFER->offset + OFFSET; break;
-		case DARK_END: newOffset = (BUFFER->block).size + OFFSET; break;
-		default: error_throwReturn("invalid KIND");
-	};
-	if (newOffset < 0) error_throwReturn("invalid OFFSET");
+	buffer_calculateOffset(BUFFER,KIND,OFFSET,newOffset);
 	DKusize oldOffset = BUFFER->offset;
 	BUFFER->offset = newOffset;
 	safe_endReturn(BUFFER,oldOffset);

@@ -12,7 +12,7 @@ DKstring *dkString_createFromRaw(DKcharacter *SOURCE,DKusize SIZE,DKssize START,
 {
 	DKstring *string = NULL;
 	unsafe_start();
-	DKusize size = (SIZE > 0)? SIZE : strlen(SOURCE);
+	DKusize size = (SIZE != DARK_AUTO)? SIZE : strlen(SOURCE);
 	blob_createFromRaw(DKstring,DKcharacter,SOURCE,size,START,END,string);
 	return string;
 };
