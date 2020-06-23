@@ -6,17 +6,17 @@ typedef struct
 #macro mutex_update(MUTEX,LOCK)
 {
 	MUTEX.lock = LOCK;
-}
+};
 
 #macro mutex_lock(MUTEX)
 {
 	if (MUTEX.lock) mtx_lock(MUTEX.lock);
-}
+};
 
 #macro mutex_unlock(MUTEX)
 {
 	if (MUTEX.lock) mtx_unlock(MUTEX.lock);
-}
+};
 
 #macro mutex_destroyLock(MUTEX)
 {
@@ -24,12 +24,12 @@ typedef struct
 	mtx_destroy(MUTEX.lock);
 	free(MUTEX.lock);
 	MUTEX.lock = NULL;
-}
+};
 
 #macro mutex_destroy(MUTEX)
 {
 	if (MUTEX.lock) mutex_destroyLock(MUTEX);
-}
+};
 
 #macro mutex_setLock(MUTEX,LOCK)
 {
@@ -46,9 +46,9 @@ typedef struct
 	}
 	else if (MUTEX.lock) mutex_destroyLock(MUTEX)
 	else error_throw("invalid LOCK");
-}
+};
 
 #alias mutex_getLock(MUTEX)
 {
 	MUTEX.lock
-}
+};

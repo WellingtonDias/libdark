@@ -3,7 +3,7 @@
 	if (!(BLOB = malloc(sizeof(TYPE)))) error_throwReturn("MEMORY: malloc");
 	block_update(BLOB->block,SOURCE,SIZE,CAPACITY);
 	mutex_update(BLOB->mutex,NULL);
-}
+};
 
 #macro blob_createFromRaw(#BLOB_TYPE,#BLOCK_TYPE,SOURCE,SIZE,START,END,BLOB)
 {
@@ -17,7 +17,7 @@
 	if (!(source = malloc(capacity))) error_throwReturn("MEMORY: malloc");
 	memcpy(source,SOURCE + index,size);
 	blob_create(BLOB_TYPE,source,size,capacity,BLOB);
-}
+};
 
 #macro blob_createFromFile(#BLOB_TYPE,#BLOCK_TYPE,FILE_NAME,FILE_TYPE,START,END,BLOB)
 {
@@ -38,7 +38,7 @@
 	if (fread(source,1,outputSize,file) != outputSize) error_throwReturn("FILE: read");
 	if (fclose(file) != 0) error_throwReturn("FILE: close");
 	blob_create(BLOB_TYPE,source,outputSize,capacity,BLOB);
-}
+};
 
 #macro blob_save(BLOB,START,END,FILE_NAME,FILE_TYPE)
 {
@@ -52,13 +52,13 @@
 	if (FILE_TYPE == "w")
 	{
 		if (fwrite("\n",1,1,file) != 1) error_throw("FILE: write");
-	}
+	};
 	if (fclose(file) != 0) error_throw("FILE: close");
-}
+};
 
 #macro blob_destroy(BLOB)
 {
 	block_destroy(BLOB->block);
 	mutex_destroy(BLOB->mutex);
 	free(BLOB);
-}
+};

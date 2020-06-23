@@ -15,25 +15,24 @@
 #define DKssize signed long long
 #define DKf32 float
 #define DKf64 double
-#define DKchar char
+#define DKcharacter char
 #define DKpointer void*
 typedef struct _string DKstring;
 typedef struct _buffer DKbuffer;
 
 // Constants
-#define DARK_AUTO     0
-#define DARK_ABSOLUTE 1
-#define DARK_RELATIVE 2
-#define DARK_START    3
-#define DARK_CURRENT  4
-#define DARK_END      5
+#define DARK_ABSOLUTE 0
+#define DARK_RELATIVE 1
+#define DARK_START    2
+#define DARK_CURRENT  3
+#define DARK_END      4
 
 // Error
 void dkError_start(void);
 void dkError_end(void);
-DKchar *dkError_catch(void);
-void dkError_throw(DKchar *MESSAGE);
-void dkError_debug(DKchar *MESSAGE);
+DKcharacter *dkError_catch(void);
+void dkError_throw(DKcharacter *MESSAGE);
+void dkError_debug(DKcharacter *MESSAGE);
 
 //Scalar
 typedef union
@@ -51,7 +50,8 @@ typedef union
 	DKssize ssize;
 	DKf32 f32;
 	DKf64 f64;
-	DKchar *nstring;
+	DKcharacter character;
+	DKcharacter *nstring;
 	DKpointer pointer;
 	DKstring *string;
 	DKbuffer *buffer;
@@ -69,53 +69,50 @@ typedef union
 #define DARK_STRING_ALL   2
 
 DKstring *dkString_create(void);
-DKstring *dkString_createFromRaw(DKchar *SOURCE,DKusize SIZE,DKssize START,DKssize END);
+DKstring *dkString_createFromRaw(DKcharacter *SOURCE,DKusize SIZE,DKssize START,DKssize END);
 DKstring *dkString_createFromCopy(DKstring *STRING,DKssize START,DKssize END);
-DKstring *dkString_createFromFile(DKchar *FILE_NAME,DKssize START,DKssize END);
+DKstring *dkString_createFromFile(DKcharacter *FILE_NAME,DKssize START,DKssize END);
 DKstring *dkString_destroy(DKstring *STRING);
-	void dkString_save(DKstring *STRING,DKssize START,DKssize END,DKchar *FILE_NAME);
+	void dkString_save(DKstring *STRING,DKssize START,DKssize END,DKcharacter *FILE_NAME);
 	void dkString_merge(DKstring *STRING,DKssize INDEX,DKstring *SOURCE,DKssize START,DKssize END);
 	void dkString_clear(DKstring *STRING);
 	DKboolean dkString_compare(DKstring *STRING1,DKstring *STRING2);
 		void dkString_convert(DKstring *STRING,DKu8 KIND);
 		void dkString_trim(DKstring *STRING,DKu8 KIND);
-			DKchar dkString_getCharacter(DKstring *STRING,DKssize INDEX);
-			DKchar *dkString_getSource(DKstring *STRING);
+			DKcharacter dkString_getCharacter(DKstring *STRING,DKssize INDEX);
+			DKcharacter *dkString_getSource(DKstring *STRING);
 			DKusize dkString_getLength(DKstring *STRING);
 			DKboolean dkString_isEmpty(DKstring *STRING);
 			void dkString_setLock(DKstring *STRING,DKboolean LOCK);
 			DKboolean dkString_getLock(DKstring *STRING);
-void dkString_debug(DKstring *STRING,DKchar *LABEL);
+void dkString_debug(DKstring *STRING,DKcharacter *LABEL);
 
 // Buffer
-#define DARK_BUFFER_BOOLEAN 0
-#define DARK_BUFFER_U8      1
-#define DARK_BUFFER_S8      2
-#define DARK_BUFFER_U16LE   3
-#define DARK_BUFFER_U16BE   4
-#define DARK_BUFFER_S16LE   5
-#define DARK_BUFFER_S16BE   6
-#define DARK_BUFFER_U32LE   7
-#define DARK_BUFFER_U32BE   8
-#define DARK_BUFFER_S32LE   9
-#define DARK_BUFFER_S32BE   10
-#define DARK_BUFFER_U64LE   11
-#define DARK_BUFFER_U64BE   12
-#define DARK_BUFFER_S64LE   13
-#define DARK_BUFFER_S64BE   14
-#define DARK_BUFFER_F32LE   15
-#define DARK_BUFFER_F32BE   16
-#define DARK_BUFFER_F64LE   17
-#define DARK_BUFFER_F64BE   18
-#define DARK_BUFFER_NSTRING 19
-#define DARK_BUFFER_RSTRING 20
+#define DARK_BUFFER_SYSTEM_ENDIAN 0
+#define DARK_BUFFER_LITTLE_ENDIAN 1
+#define DARK_BUFFER_BIG_ENDIAN    2
 
-DKbuffer *dkBuffer_create(void);
-DKbuffer *dkBuffer_createFromRaw(DKu8 *SOURCE,DKusize SIZE,DKssize START,DKssize END);
+#define DARK_BUFFER_BOOLEAN    0
+#define DARK_BUFFER_U8         1
+#define DARK_BUFFER_S8         2
+#define DARK_BUFFER_U16        3
+#define DARK_BUFFER_S16        4
+#define DARK_BUFFER_U32        5
+#define DARK_BUFFER_S32        6
+#define DARK_BUFFER_U64        7
+#define DARK_BUFFER_S64        8
+#define DARK_BUFFER_F32        9
+#define DARK_BUFFER_F64       10
+#define DARK_BUFFER_CHARACTER 11
+#define DARK_BUFFER_NSTRING   12
+#define DARK_BUFFER_RSTRING   13
+
+DKbuffer *dkBuffer_create(DKu8 ENDIAN);
+DKbuffer *dkBuffer_createFromRaw(DKu8 *SOURCE,DKusize SIZE,DKu8 ENDIAN,DKssize START,DKssize END);
 DKbuffer *dkBuffer_createFromCopy(DKbuffer *BUFFER,DKssize START,DKssize END);
-DKbuffer *dkBuffer_createFromFile(DKchar *FILE_NAME,DKssize START,DKssize END);
+DKbuffer *dkBuffer_createFromFile(DKcharacter *FILE_NAME,DKu8 ENDIAN,DKssize START,DKssize END);
 DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
-	void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKchar *FILE_NAME);
+	void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKcharacter *FILE_NAME);
 	void dkBuffer_merge(DKbuffer *BUFFER,DKssize OFFSET,DKbuffer *SOURCE,DKssize START,DKssize END);
 	void dkBuffer_clear(DKbuffer *BUFFER);
 	DKboolean dkBuffer_compare(DKbuffer *BUFFER1,DKbuffer *BUFFER2);
@@ -139,6 +136,7 @@ DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
 		void dkBuffer_removeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE);
 		void dkBuffer_removeRaw(DKbuffer *BUFFER,DKusize SIZE);
 		void dkBuffer_removeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKusize SIZE);
+			DKu8 dkBuffer_getEndian(DKbuffer *BUFFER);
 			DKusize dkBuffer_setOffset(DKbuffer *BUFFER,DKu8 KIND,DKssize OFFSET);
 			DKusize dkBuffer_resetOffset(DKbuffer *BUFFER);
 			DKusize dkBuffer_getOffset(DKbuffer *BUFFER);
@@ -148,4 +146,4 @@ DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
 			DKboolean dkBuffer_isEmpty(DKbuffer *BUFFER);
 			void dkBuffer_setLock(DKbuffer *BUFFER,DKboolean LOCK);
 			DKboolean dkBuffer_getLock(DKbuffer *BUFFER);
-void dkBuffer_debug(DKbuffer *BUFFER,DKchar *LABEL);
+void dkBuffer_debug(DKbuffer *BUFFER,DKcharacter *LABEL);

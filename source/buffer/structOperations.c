@@ -1,9 +1,9 @@
-void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKchar *FILE_NAME)
+void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKcharacter *FILE_NAME)
 {
 	safe_start(BUFFER);
 	blob_save(BUFFER,START,END,FILE_NAME,"wb");
 	safe_end(BUFFER);
-}
+};
 
 void dkBuffer_merge(DKbuffer *BUFFER,DKssize OFFSET,DKbuffer *SOURCE,DKssize START,DKssize END)
 {
@@ -12,14 +12,14 @@ void dkBuffer_merge(DKbuffer *BUFFER,DKssize OFFSET,DKbuffer *SOURCE,DKssize STA
 	block_merge(BUFFER->block,DKu8,OFFSET,SOURCE->block,START,END)
 	mutex_unlock(SOURCE->mutex);
 	safe_end(BUFFER);
-}
+};
 
 void dkBuffer_clear(DKbuffer *BUFFER)
 {
 	safe_start(BUFFER);
 	block_clear(BUFFER->block,DKu8);
 	safe_end(BUFFER);
-}
+};
 
 DKboolean dkBuffer_compare(DKbuffer *BUFFER1,DKbuffer *BUFFER2)
 {
@@ -28,4 +28,4 @@ DKboolean dkBuffer_compare(DKbuffer *BUFFER1,DKbuffer *BUFFER2)
 	DKboolean comparison = block_compare(BUFFER1->block,BUFFER2->block,DKu8);
 	mutex_unlock(BUFFER2->mutex);
 	safe_endReturn(BUFFER1,comparison);
-}
+};
