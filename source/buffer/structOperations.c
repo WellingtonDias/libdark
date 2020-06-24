@@ -1,4 +1,4 @@
-void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKcharacter *FILE_NAME)
+void dkBuffer_save(DKbuffer *BUFFER,DKssize START,DKssize END,DKnstring FILE_NAME)
 {
 	safe_start(BUFFER);
 	blob_save(BUFFER,START,END,FILE_NAME,"wb");

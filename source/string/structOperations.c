@@ -1,4 +1,4 @@
-void dkString_save(DKstring *STRING,DKssize START,DKssize END,DKcharacter *FILE_NAME)
+void dkString_save(DKstring *STRING,DKssize START,DKssize END,DKnstring FILE_NAME)
 {
 	safe_start(STRING);
 	blob_save(STRING,START,END,FILE_NAME,"w");

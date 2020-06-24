@@ -73,17 +73,17 @@
 	};
 };
 
-void dkString_convert(DKstring *STRING,DKu8 KIND)
+void dkString_convert(DKstring *STRING,DKu8 TYPE)
 {
 	safe_start(STRING);
-	switch (KIND)
+	switch (TYPE)
 	{
 		case DARK_STRING_LOWER_CASE: string_lowerCase(STRING->block); break;
 		case DARK_STRING_UPPER_CASE: string_upperCase(STRING->block); break;
 		case DARK_STRING_PROPER_CASE: string_properCase(STRING->block); break;
 		case DARK_STRING_ALTERNATE_CASE: string_alternateCase(STRING->block); break;
 		case DARK_STRING_INVERT_CASE: string_invertCase(STRING->block); break;
-		default: error_throw("invalid KIND");
+		default: error_throw("invalid TYPE");
 	};
 	safe_end(STRING);
 };
@@ -108,20 +108,20 @@ void dkString_convert(DKstring *STRING,DKu8 KIND)
 	if (i > 0) block_remove(BLOCK,DKcharacter,BLOCK.size - i,i);
 };
 
-void dkString_trim(DKstring *STRING,DKu8 KIND)
+void dkString_trim(DKstring *STRING,DKu8 TYPE)
 {
 	safe_start(STRING);
-	switch (KIND)
+	switch (TYPE)
 	{
-		case DARK_STRING_START: string_trimStart(STRING->block); break;
-		case DARK_STRING_END: string_trimEnd(STRING->block); break;
-		case DARK_STRING_ALL:
+		case DARK_STRING_TRIM_START: string_trimStart(STRING->block); break;
+		case DARK_STRING_TRIM_END: string_trimEnd(STRING->block); break;
+		case DARK_STRING_TRIM_ALL:
 		{
 			string_trimStart(STRING->block);
 			string_trimEnd(STRING->block);
 			break;
 		};
-		default: error_throw("invalid KIND");
+		default: error_throw("invalid TYPE");
 	};
 	safe_end(STRING);
 };

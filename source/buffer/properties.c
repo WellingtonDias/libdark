@@ -1,24 +1,25 @@
-void dkBuffer_setEndian(DKbuffer *BUFFER,DKu8 ENDIAN)
+DKu8 dkBuffer_setEndian(DKbuffer *BUFFER,DKu8 ENDIAN)
 {
 	safe_start(BUFFER);
-	buffer_calculateEndian(BUFFER,ENDIAN,BUFFER->endian);
-	safe_end(BUFFER);
+	DKu8 endian = BUFFER->endian;
+	buffer_calculateEndian(ENDIAN,BUFFER->endian);
+	error_bypassReturn();
+	safe_endReturn(BUFFER,endian);
 };
 
 DKu8 dkBuffer_getEndian(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return BUFFER->endian;
+	safe_start(BUFFER);
+	DKu8 endian = BUFFER->endian;
+	safe_endReturn(BUFFER,endian);
 };
 
-DKusize dkBuffer_setOffset(DKbuffer *BUFFER,DKu8 KIND,DKssize OFFSET)
+DKusize dkBuffer_setOffset(DKbuffer *BUFFER,DKusize OFFSET)
 {
-	DKssize newOffset = 0;
 	safe_start(BUFFER);
-	buffer_calculateOffset(BUFFER,KIND,OFFSET,newOffset);
-	DKusize oldOffset = BUFFER->offset;
-	BUFFER->offset = newOffset;
-	safe_endReturn(BUFFER,oldOffset);
+	DKusize offset = BUFFER->offset;
+	BUFFER->offset = OFFSET;
+	safe_endReturn(BUFFER,offset);
 };
 
 DKusize dkBuffer_resetOffset(DKbuffer *BUFFER)
@@ -31,34 +32,38 @@ DKusize dkBuffer_resetOffset(DKbuffer *BUFFER)
 
 DKusize dkBuffer_getOffset(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return BUFFER->offset;
+	safe_start(BUFFER);
+	DKusize offset = BUFFER->offset;
+	safe_endReturn(BUFFER,offset);
 };
 
 DKu8 *dkBuffer_getSource(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return block_getSource(BUFFER->block);
+	safe_start(BUFFER);
+	DKu8 *source = block_getSource(BUFFER->block);
+	safe_endReturn(BUFFER,source);
 };
 
-DKusize dkBuffer_setSize(DKbuffer *BUFFER,DKu8 KIND,DKssize SIZE)
+DKusize dkBuffer_setSize(DKbuffer *BUFFER,DKusize SIZE)
 {
-	DKusize size = 0;
 	safe_start(BUFFER);
-	block_setSize(BUFFER->block,DKu8,KIND,SIZE,size);
+	DKusize size = (BUFFER->block).size;
+	block_setSize(BUFFER->block,DKu8,SIZE);
 	safe_endReturn(BUFFER,size);
 };
 
 DKusize dkBuffer_getSize(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return block_getSize(BUFFER->block);
+	safe_start(BUFFER);
+	DKusize size = block_getSize(BUFFER->block);
+	safe_endReturn(BUFFER,size);
 };
 
 DKboolean dkBuffer_isEmpty(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return block_isEmpty(BUFFER->block);
+	safe_start(BUFFER);
+	DKboolean empty = block_isEmpty(BUFFER->block);
+	safe_endReturn(BUFFER,empty);
 };
 
 void dkBuffer_setLock(DKbuffer *BUFFER,DKboolean LOCK)
@@ -70,6 +75,7 @@ void dkBuffer_setLock(DKbuffer *BUFFER,DKboolean LOCK)
 
 DKboolean dkBuffer_getLock(DKbuffer *BUFFER)
 {
-	unsafe_start();
-	return mutex_getLock(BUFFER->mutex);
+	safe_start(BUFFER);
+	DKboolean lock = mutex_getLock(BUFFER->mutex);
+	safe_endReturn(BUFFER,lock);
 };

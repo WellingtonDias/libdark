@@ -2,28 +2,31 @@ DKcharacter dkString_getCharacter(DKstring *STRING,DKssize INDEX)
 {
 	DKusize index = 0;
 	safe_start(STRING);
-	helper_calculateSafePosition(INDEX,(STRING->block).size,index);
+	block_calculateSafePosition(INDEX,(STRING->block).size,index);
 	error_bypassReturn();
-	DKcharacter code = (STRING->block).source[index];
-	safe_endReturn(STRING,code);
+	DKcharacter character = (STRING->block).source[index];
+	safe_endReturn(STRING,character);
 };
 
-DKcharacter *dkString_getSource(DKstring *STRING)
+DKnstring dkString_getSource(DKstring *STRING)
 {
-	unsafe_start();
-	return block_getSource(STRING->block);
+	safe_start(STRING);
+	DKnstring source = block_getSource(STRING->block);
+	safe_endReturn(STRING,source);
 };
 
 DKusize dkString_getLength(DKstring *STRING)
 {
-	unsafe_start();
-	return block_getSize(STRING->block);
+	safe_start(STRING);
+	DKusize size = block_getSize(STRING->block);
+	safe_endReturn(STRING,size);
 };
 
 DKboolean dkString_isEmpty(DKstring *STRING)
 {
-	unsafe_start();
-	return block_isEmpty(STRING->block);
+	safe_start(STRING);
+	DKboolean empty = block_isEmpty(STRING->block);
+	safe_endReturn(STRING,empty);
 };
 
 void dkString_setLock(DKstring *STRING,DKboolean LOCK)
@@ -35,6 +38,7 @@ void dkString_setLock(DKstring *STRING,DKboolean LOCK)
 
 DKboolean dkString_getLock(DKstring *STRING)
 {
-	unsafe_start();
-	return mutex_getLock(STRING->mutex);
+	safe_start(STRING);
+	DKboolean lock = mutex_getLock(STRING->mutex);
+	safe_endReturn(STRING,lock);
 };
