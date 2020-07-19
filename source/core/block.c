@@ -3,6 +3,8 @@
 	typedef struct
 	{
 		TYPE *source;
+		TYPE *start;
+		DKusize offset;
 		DKusize size;
 		DKusize capacity;
 	} NAME;
@@ -68,8 +70,72 @@
 #macro block_update(BLOCK,SOURCE,SIZE,CAPACITY)
 {
 	BLOCK.source = SOURCE;
+	BLOCK.start = SOURCE;
+	BLOCK.offset = 0;
 	BLOCK.size = SIZE;
 	BLOCK.capacity = CAPACITY;
+};
+
+#macro block_trim(BLOCK,#TYPE)
+{
+	if (BLOCK.offset > 0)
+	{
+		memcpy(BLOCK.source,BLOCK.start,BLOCK.size * sizeof(TYPE));
+		BLOCK.start = BLOCK.source;
+		BLOCK.offset = 0;
+	};
+};
+
+#macro block_increase(BLOCK,#TYPE,SIZE)
+{
+	if (BLOCK.offset + SIZE > BLOCK.capacity)
+	{
+		#local TYPE *source;
+		#local DKusize capacity;
+		block_increaseCapacity(BLOCK.capacity,BLOCK.offset + SIZE,capacity);
+		if (!(source = realloc(BLOCK.source,capacity * sizeof(TYPE)))) error_set("MEMORY: realloc");
+		BLOCK.source = source;
+		BLOCK.start = source + BLOCK.offset;
+		BLOCK.capacity = capacity;
+	};
+};
+
+#macro block_decrease(BLOCK,#TYPE,SIZE)
+{
+	#local DKusize capacity;
+	block_trim(BLOCK,TYPE);
+	block_decreaseCapacity(BLOCK.capacity,SIZE,capacity);
+	if (capacity < BLOCK.capacity)
+	{
+		#local TYPE *source;
+		if ((source = realloc(BLOCK.source,capacity * sizeof(TYPE))))
+		{
+			BLOCK.source = source;
+			BLOCK.start = source;
+			BLOCK.capacity = capacity;
+		};
+	};
+};
+
+#macro block_createFromNothing(BLOCK,#TYPE)
+{
+	#local TYPE *source;
+	if (!(source = malloc(sizeof(TYPE)))) error_throwReturn("MEMORY: malloc");
+	block_update(BLOCK,source,0,1);
+};
+
+#macro block_createFromMemory(BLOCK,#TYPE,SOURCE,SIZE,START,END)
+{
+	#local TYPE *source;
+	#local DKusize index;
+	#local DKusize size;
+	#local DKusize capacity;
+	block_calculateRange(START,END,SIZE,index,size);
+	error_bypassReturn();
+	block_calculateCapacity(size,capacity);
+	if (!(source = malloc(capacity * sizeof(TYPE)))) error_throwReturn("MEMORY: malloc");
+	memcpy(source,SOURCE + index,size * sizeof(TYPE));
+	block_update(BLOCK,source,size,capacity);
 };
 
 #macro block_destroy(BLOCK)
@@ -86,7 +152,11 @@
 	error_bypass();
 	block_calculateRange(START,END,SOURCE.size,sourceIndex,size);
 	error_bypass();
-	block_insert(BLOCK,TYPE,destinationIndex,SOURCE.source + sourceIndex,size);
+	block_increase(BLOCK,TYPE,BLOCK.size + size);
+	error_bypass();
+	memmove(BLOCK.start + destinationIndex + size,BLOCK.start + destinationIndex,(BLOCK.size - destinationIndex) * sizeof(TYPE));
+	memcpy(BLOCK.start + destinationIndex,SOURCE.start + sourceIndex,size * sizeof(TYPE));
+	BLOCK.size += size;
 };
 
 #macro block_clear(BLOCK,#TYPE)
@@ -98,87 +168,22 @@
 
 #alias block_compare(BLOCK1,BLOCK2,#TYPE)
 {
-	(BLOCK1.size == BLOCK2.size) && (memcmp(BLOCK1.source,BLOCK2.source,BLOCK1.size * sizeof(TYPE)) == 0)
-};
-
-#macro block_increase(BLOCK,#TYPE,SIZE)
-{
-	if (SIZE > BLOCK.capacity)
-	{
-		#local TYPE *source;
-		#local DKusize capacity;
-		block_increaseCapacity(BLOCK.capacity,SIZE,capacity);
-		if (!(source = realloc(BLOCK.source,capacity * sizeof(TYPE)))) error_throw("MEMORY: realloc");
-		BLOCK.source = source;
-		BLOCK.capacity = capacity;
-	};
-};
-
-#macro block_insert(BLOCK,#TYPE,INDEX,SOURCE,SIZE)
-{
-	#local DKusize size;
-	size = ((INDEX > BLOCK.size)? INDEX : BLOCK.size) + SIZE;
-	block_increase(BLOCK,TYPE,size);
-	if (INDEX > BLOCK.size) memset(BLOCK.source + BLOCK.size,0,(INDEX - BLOCK.size) * sizeof(TYPE));
-	else memmove(BLOCK.source + INDEX + SIZE,BLOCK.source + INDEX,(BLOCK.size - INDEX) * sizeof(TYPE));
-	memcpy(BLOCK.source + INDEX,SOURCE,SIZE * sizeof(TYPE));
-	BLOCK.size = size;
-};
-
-#macro block_write(BLOCK,#TYPE,INDEX,SOURCE,SIZE)
-{
-	if (INDEX + SIZE > BLOCK.size)
-	{
-		block_increase(BLOCK,TYPE,INDEX + SIZE);
-		if (INDEX > BLOCK.size) memset(BLOCK.source + BLOCK.size,0,(INDEX - BLOCK.size) * sizeof(TYPE));
-		BLOCK.size = INDEX + SIZE;
-	};
-	memcpy(BLOCK.source + INDEX,SOURCE,SIZE * sizeof(TYPE));
-};
-
-#macro block_erase(BLOCK,#TYPE,INDEX,SIZE)
-{
-	if (SIZE > BLOCK.size) error_throw("invalid SIZE");
-	if ((DKssize) INDEX > (DKssize) BLOCK.size - (DKssize) SIZE) error_throw("invalid INDEX");
-	memset(BLOCK.source + INDEX,0,SIZE * sizeof(TYPE));
-};
-
-#macro block_decrease(BLOCK,#TYPE,SIZE)
-{
-	#local DKusize capacity;
-	block_decreaseCapacity(BLOCK.capacity,SIZE,capacity);
-	if (capacity < BLOCK.capacity)
-	{
-		#local TYPE *source;
-		if ((source = realloc(BLOCK.source,capacity * sizeof(TYPE))))
-		{
-			BLOCK.source = source;
-			BLOCK.capacity = capacity;
-		};
-	};
-};
-
-#macro block_remove(BLOCK,#TYPE,INDEX,SIZE)
-{
-	if (SIZE > BLOCK.size) error_throw("invalid SIZE");
-	if ((DKssize) INDEX > (DKssize) BLOCK.size - (DKssize) SIZE) error_throw("invalid INDEX");
-	memcpy(BLOCK.source + INDEX,BLOCK.source + INDEX + SIZE,(BLOCK.size - SIZE - INDEX) * sizeof(TYPE));
-	BLOCK.size -= SIZE;
-	block_decrease(BLOCK,TYPE,BLOCK.size);
+	(BLOCK1.size == BLOCK2.size) && (memcmp(BLOCK1.start,BLOCK2.start,BLOCK1.size * sizeof(TYPE)) == 0)
 };
 
 #alias block_getSource(BLOCK)
 {
-	BLOCK.source
+	BLOCK.start
 };
 
 #macro block_setSize(BLOCK,#TYPE,SIZE)
 {
 	#local TYPE *source;
 	#local DKusize capacity;
+	block_trim(BLOCK,TYPE);
 	block_calculateCapacity(SIZE,capacity);
 	if (!(source = realloc(BLOCK.source,capacity * sizeof(TYPE)))) error_throwReturn("MEMORY: realloc");
-	if (SIZE > BLOCK.size) memset(BLOCK.source + BLOCK.size,0,(SIZE - BLOCK.size) * sizeof(TYPE));
+	if (SIZE > BLOCK.size) memset(source + BLOCK.size,0,(SIZE - BLOCK.size) * sizeof(TYPE));
 	block_update(BLOCK,source,SIZE,capacity);
 };
 

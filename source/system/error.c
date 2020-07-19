@@ -67,7 +67,7 @@ void dkError_end(void)
 
 DKnstring dkError_catch(void)
 {
-	DKnstring error = NULL;
+	DKnstring error;
 	if (!(error = ErrorMessage)) return NULL;
 	ErrorMessage = NULL;
 	return error;
@@ -75,11 +75,11 @@ DKnstring dkError_catch(void)
 
 void dkError_throw(DKnstring MESSAGE)
 {
-	printf("ERROR: %s.\n",MESSAGE);
+	printf("Error: %s.\n",MESSAGE);
 	exit(EXIT_FAILURE);
 };
 
 void dkError_debug(DKnstring MESSAGE)
 {
-	printf("ERROR: %s.\n",MESSAGE);
+	printf("Error: %s.\n",MESSAGE);
 };

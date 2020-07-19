@@ -1,75 +1,75 @@
-#alias string_isSpace(BLOCK,INDEX)
+#alias string_isSpace(STREAM,INDEX)
 {
-	(BLOCK.source[INDEX] == ' ') || (BLOCK.source[INDEX] == '\t') || (BLOCK.source[INDEX] == '\v') || (BLOCK.source[INDEX] == '\f') || (BLOCK.source[INDEX] == '\r') || (BLOCK.source[INDEX] == '\n')
+	(STREAM.source[INDEX] == ' ') || (STREAM.source[INDEX] == '\t') || (STREAM.source[INDEX] == '\v') || (STREAM.source[INDEX] == '\f') || (STREAM.source[INDEX] == '\r') || (STREAM.source[INDEX] == '\n')
 };
 
-#alias string_isLowerCase(BLOCK,INDEX)
+#alias string_isLowerCase(STREAM,INDEX)
 {
-	(BLOCK.source[INDEX] >= 97) && (BLOCK.source[INDEX] <= 122)
+	(STREAM.source[INDEX] >= 97) && (STREAM.source[INDEX] <= 122)
 };
 
-#alias string_isUpperCase(BLOCK,INDEX)
+#alias string_isUpperCase(STREAM,INDEX)
 {
-	(BLOCK.source[INDEX] >= 65) && (BLOCK.source[INDEX] <= 90)
+	(STREAM.source[INDEX] >= 65) && (STREAM.source[INDEX] <= 90)
 };
 
-#macro string_toLowerCase(BLOCK,INDEX)
+#macro string_toLowerCase(STREAM,INDEX)
 {
-	BLOCK.source[INDEX] += 32;
+	STREAM.source[INDEX] += 32;
 };
 
-#macro string_toUpperCase(BLOCK,INDEX)
+#macro string_toUpperCase(STREAM,INDEX)
 {
-	BLOCK.source[INDEX] -= 32;
+	STREAM.source[INDEX] -= 32;
 };
 
-#macro string_lowerCase(BLOCK)
+#macro string_lowerCase(STREAM)
 {
-	for (DKusize i = 0; i < BLOCK.size; ++i)
+	for (DKusize i = 0; i < STREAM.size; ++i)
 	{
-		if (string_isUpperCase(BLOCK,i)) string_toLowerCase(BLOCK,i);
+		if (string_isUpperCase(STREAM,i)) string_toLowerCase(STREAM,i);
 	};
 };
 
-#macro string_upperCase(BLOCK)
+#macro string_upperCase(STREAM)
 {
-	for (DKusize i = 0; i < BLOCK.size; ++i)
+	for (DKusize i = 0; i < STREAM.size; ++i)
 	{
-		if (string_isLowerCase(BLOCK,i)) string_toUpperCase(BLOCK,i);
+		if (string_isLowerCase(STREAM,i)) string_toUpperCase(STREAM,i);
 	};
 };
 
-#macro string_properCase(BLOCK)
+#macro string_properCase(STREAM)
 {
-	if (string_isLowerCase(BLOCK,0)) string_toUpperCase(BLOCK,0);
-	for (DKusize i = 1; i < BLOCK.size; ++i)
+	if (string_isLowerCase(STREAM,0)) string_toUpperCase(STREAM,0);
+	for (DKusize i = 1; i < STREAM.size; ++i)
 	{
-		if (string_isSpace(BLOCK,i - 1))
+		if (string_isSpace(STREAM,i - 1))
 		{
-			if (string_isLowerCase(BLOCK,i)) string_toUpperCase(BLOCK,i);
+			if (string_isLowerCase(STREAM,i)) string_toUpperCase(STREAM,i);
 		}
-		else if (string_isUpperCase(BLOCK,i)) string_toLowerCase(BLOCK,i);
+		else if (string_isUpperCase(STREAM,i)) string_toLowerCase(STREAM,i);
 	};
 };
 
-#macro string_alternateCase(BLOCK)
+#macro string_alternateCase(STREAM)
 {
-	for (DKusize i = 0; i < BLOCK.size; ++i)
+	for (DKusize i = 0; i < STREAM.size; ++i)
 	{
 		if (i % 2)
 		{
-			if (string_isUpperCase(BLOCK,i)) string_toLowerCase(BLOCK,i);
+			if (string_isUpperCase(STREAM,i)) string_toLowerCase(STREAM,i);
 		}
-		else if (string_isLowerCase(BLOCK,i)) string_toUpperCase(BLOCK,i);
+		else if (string_isLowerCase(STREAM,i)) string_toUpperCase(STREAM,i);
 	};
 };
 
-#macro string_invertCase(BLOCK)
+#macro string_invertCase(STREAM)
 {
-	for (DKusize i = 0; i < BLOCK.size; ++i)
+	for (DKusize i = 0; i < STREAM.size; ++i)
 	{
-		if (string_isUpperCase(BLOCK,i)) string_toLowerCase(BLOCK,i)
-		else if (string_isLowerCase(BLOCK,i)) string_toUpperCase(BLOCK,i);
+		if (string_isUpperCase(STREAM,i)) string_toLowerCase(STREAM,i)
+		else if (string_isLowerCase(STREAM,i)) string_toUpperCase(STREAM,i);
 	};
 };
 
@@ -78,34 +78,34 @@ void dkString_convert(DKstring *STRING,DKu8 TYPE)
 	safe_start(STRING);
 	switch (TYPE)
 	{
-		case DARK_STRING_LOWER_CASE: string_lowerCase(STRING->block); break;
-		case DARK_STRING_UPPER_CASE: string_upperCase(STRING->block); break;
-		case DARK_STRING_PROPER_CASE: string_properCase(STRING->block); break;
-		case DARK_STRING_ALTERNATE_CASE: string_alternateCase(STRING->block); break;
-		case DARK_STRING_INVERT_CASE: string_invertCase(STRING->block); break;
+		case DARK_STRING_LOWER_CASE: string_lowerCase(STRING->stream); break;
+		case DARK_STRING_UPPER_CASE: string_upperCase(STRING->stream); break;
+		case DARK_STRING_PROPER_CASE: string_properCase(STRING->stream); break;
+		case DARK_STRING_ALTERNATE_CASE: string_alternateCase(STRING->stream); break;
+		case DARK_STRING_INVERT_CASE: string_invertCase(STRING->stream); break;
 		default: error_throw("invalid TYPE");
 	};
 	safe_end(STRING);
 };
 
-#macro string_trimStart(BLOCK)
+#macro string_trimStart(STREAM)
 {
 	#local DKusize i;
-	for (i = 0; i < BLOCK.size; ++i)
+	for (i = 0; i < STREAM.size; ++i)
 	{
-		if (!string_isSpace(BLOCK,i)) break;
+		if (!string_isSpace(STREAM,i)) break;
 	};
-	if (i > 0) block_remove(BLOCK,DKcharacter,0,i);
+	if (i > 0) stream_remove(STREAM,DKcharacter,0,i);
 };
 
-#macro string_trimEnd(BLOCK)
+#macro string_trimEnd(STREAM)
 {
 	#local DKusize i;
-	for (i = 0; i < BLOCK.size; ++i)
+	for (i = 0; i < STREAM.size; ++i)
 	{
-		if (!string_isSpace(BLOCK,(BLOCK.size - 1) - i)) break;
+		if (!string_isSpace(STREAM,(STREAM.size - 1) - i)) break;
 	};
-	if (i > 0) block_remove(BLOCK,DKcharacter,BLOCK.size - i,i);
+	if (i > 0) stream_remove(STREAM,DKcharacter,STREAM.size - i,i);
 };
 
 void dkString_trim(DKstring *STRING,DKu8 TYPE)
@@ -113,12 +113,12 @@ void dkString_trim(DKstring *STRING,DKu8 TYPE)
 	safe_start(STRING);
 	switch (TYPE)
 	{
-		case DARK_STRING_TRIM_START: string_trimStart(STRING->block); break;
-		case DARK_STRING_TRIM_END: string_trimEnd(STRING->block); break;
+		case DARK_STRING_TRIM_START: string_trimStart(STRING->stream); break;
+		case DARK_STRING_TRIM_END: string_trimEnd(STRING->stream); break;
 		case DARK_STRING_TRIM_ALL:
 		{
-			string_trimStart(STRING->block);
-			string_trimEnd(STRING->block);
+			string_trimStart(STRING->stream);
+			string_trimEnd(STRING->stream);
 			break;
 		};
 		default: error_throw("invalid TYPE");

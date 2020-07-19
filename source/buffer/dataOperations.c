@@ -29,7 +29,7 @@ void dkBuffer_insertScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
 	DKusize size = 0;
 	safe_start(BUFFER);
 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
-	block_insert(BUFFER->block,DKu8,BUFFER->offset,source,size);
+	stream_insert(BUFFER->stream,DKu8,BUFFER->offset,source,size);
 	BUFFER->offset += size;
 	safe_end(BUFFER);
 };
@@ -40,17 +40,17 @@ void dkBuffer_insertScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKscalar SOURCE,DKu
 	DKu8 *source = NULL;
 	DKusize size = 0;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypass();
 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
-	block_insert(BUFFER->block,DKu8,offset,source,size);
+	stream_insert(BUFFER->stream,DKu8,offset,source,size);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_insertRaw(DKbuffer *BUFFER,DKu8 *SOURCE,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	block_insert(BUFFER->block,DKu8,BUFFER->offset,SOURCE,SIZE);
+	stream_insert(BUFFER->stream,DKu8,BUFFER->offset,SOURCE,SIZE);
 	BUFFER->offset += SIZE;
 	safe_end(BUFFER);
 };
@@ -59,9 +59,9 @@ void dkBuffer_insertRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 *SOURCE,DKusize S
 {
 	DKusize offset = 0;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypass();
-	block_insert(BUFFER->block,DKu8,offset,SOURCE,SIZE);
+	stream_insert(BUFFER->stream,DKu8,offset,SOURCE,SIZE);
 	safe_end(BUFFER);
 };
 
@@ -71,7 +71,7 @@ void dkBuffer_writeScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
 	DKusize size = 0;
 	safe_start(BUFFER);
 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
-	block_write(BUFFER->block,DKu8,BUFFER->offset,source,size);
+	stream_write(BUFFER->stream,DKu8,BUFFER->offset,source,size);
 	BUFFER->offset += size;
 	safe_end(BUFFER);
 };
@@ -82,17 +82,17 @@ void dkBuffer_writeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKscalar SOURCE,DKu8
 	DKu8 *source = NULL;
 	DKusize size = 0;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypass();
 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
-	block_write(BUFFER->block,DKu8,offset,source,size);
+	stream_write(BUFFER->stream,DKu8,offset,source,size);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_writeRaw(DKbuffer *BUFFER,DKu8 *SOURCE,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	block_write(BUFFER->block,DKu8,BUFFER->offset,SOURCE,SIZE);
+	stream_write(BUFFER->stream,DKu8,BUFFER->offset,SOURCE,SIZE);
 	BUFFER->offset += SIZE;
 	safe_end(BUFFER);
 };
@@ -101,39 +101,39 @@ void dkBuffer_writeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 *SOURCE,DKusize SI
 {
 	DKusize offset = 0;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypass();
-	block_write(BUFFER->block,DKu8,offset,SOURCE,SIZE);
+	stream_write(BUFFER->stream,DKu8,offset,SOURCE,SIZE);
 	safe_end(BUFFER);
 };
 
-#macro buffer_getStringLength(BLOCK,OFFSET,LENGTH)
+#macro buffer_getStringLength(STREAM,OFFSET,LENGTH)
 {
-	if (OFFSET >= BLOCK.size) error_throwCastReturn("invalid OFFSET",DKscalar);
+	if (OFFSET >= STREAM.size) error_throwCastReturn("invalid OFFSET",DKscalar);
 	while (true)
 	{
-		if (BLOCK.source[OFFSET + LENGTH] == '\0') break;
+		if (STREAM.source[OFFSET + LENGTH] == '\0') break;
 		++LENGTH;
-		if (OFFSET + LENGTH == BLOCK.size) error_throwCastReturn("invalid TYPE",DKscalar);
+		if (OFFSET + LENGTH == STREAM.size) error_throwCastReturn("invalid TYPE",DKscalar);
 	};
 	++LENGTH;
 };
 
-#macro buffer_readScalar(BLOCK,OFFSET,TYPE,SOURCE,SIZE)
+#macro buffer_readScalar(STREAM,OFFSET,TYPE,SOURCE,SIZE)
 {
 	if (TYPE > DARK_BUFFER_NSTRING) error_throwCastReturn("invalid TYPE",DKscalar);
 	if (TYPE != DARK_BUFFER_NSTRING)
 	{
 		SIZE = BufferSize[TYPE];
-		if (SIZE > BLOCK.size) error_throwCastReturn("invalid SIZE",DKscalar);
-		if ((DKssize) OFFSET > (DKssize) BLOCK.size - (DKssize) SIZE) error_throwCastReturn("invalid OFFSET",DKscalar);
-		memcpy(&SOURCE,BLOCK.source + OFFSET,SIZE);
+		if (SIZE > STREAM.size) error_throwCastReturn("invalid SIZE",DKscalar);
+		if ((DKssize) OFFSET > (DKssize) STREAM.size - (DKssize) SIZE) error_throwCastReturn("invalid OFFSET",DKscalar);
+		memcpy(&SOURCE,STREAM.source + OFFSET,SIZE);
 	}
 	else
 	{
-		buffer_getStringLength(BLOCK,OFFSET,SIZE);
+		buffer_getStringLength(STREAM,OFFSET,SIZE);
 		if (!(SOURCE.nstring = malloc(SIZE))) error_throwCastReturn("MEMORY: malloc",DKscalar);
-		memcpy(SOURCE.nstring,BLOCK.source + OFFSET,SIZE);
+		memcpy(SOURCE.nstring,STREAM.source + OFFSET,SIZE);
 	};
 };
 
@@ -142,7 +142,7 @@ DKscalar dkBuffer_readScalar(DKbuffer *BUFFER,DKu8 TYPE)
 	DKscalar source = (DKscalar) 0;
 	DKusize size = 0;
 	safe_start(BUFFER);
-	buffer_readScalar(BUFFER->block,BUFFER->offset,TYPE,source,size);
+	buffer_readScalar(BUFFER->stream,BUFFER->offset,TYPE,source,size);
 	BUFFER->offset += size;
 	safe_endCastReturn(BUFFER,source,DKscalar);
 };
@@ -153,25 +153,25 @@ DKscalar dkBuffer_readScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 	DKscalar source = (DKscalar) 0;
 	DKusize size = 0;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypassCastReturn(DKscalar);
-	buffer_readScalar(BUFFER->block,offset,TYPE,source,size);
+	buffer_readScalar(BUFFER->stream,offset,TYPE,source,size);
 	safe_endCastReturn(BUFFER,source,DKscalar);
 };
 
-#macro buffer_readRaw(BLOCK,OFFSET,SIZE,SOURCE)
+#macro buffer_readRaw(STREAM,OFFSET,SIZE,SOURCE)
 {
-	if (SIZE > BLOCK.size) error_throwReturn("invalid SIZE");
-	if ((DKssize) OFFSET > (DKssize) BLOCK.size - (DKssize) SIZE) error_throwReturn("invalid OFFSET");
+	if (SIZE > STREAM.size) error_throwReturn("invalid SIZE");
+	if ((DKssize) OFFSET > (DKssize) STREAM.size - (DKssize) SIZE) error_throwReturn("invalid OFFSET");
 	if (!(SOURCE = malloc(SIZE))) error_throwReturn("MEMORY: malloc");
-	memcpy(SOURCE,BLOCK.source + OFFSET,SIZE);
+	memcpy(SOURCE,STREAM.source + OFFSET,SIZE);
 };
 
 DKu8 *dkBuffer_readRaw(DKbuffer *BUFFER,DKusize SIZE)
 {
 	DKu8 *source = NULL;
 	safe_start(BUFFER);
-	buffer_readRaw(BUFFER->block,BUFFER->offset,SIZE,source);
+	buffer_readRaw(BUFFER->stream,BUFFER->offset,SIZE,source);
 	BUFFER->offset += SIZE;
 	safe_endReturn(BUFFER,source);
 };
@@ -181,25 +181,25 @@ DKu8 *dkBuffer_readRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKusize SIZE)
 	DKusize offset = 0;
 	DKu8 *source = NULL;
 	safe_start(BUFFER);
-	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
+	stream_calculateUnsafePosition(OFFSET,(BUFFER->stream).size,offset);
 	error_bypassReturn();
-	buffer_readRaw(BUFFER->block,offset,SIZE,source);
+	buffer_readRaw(BUFFER->stream,offset,SIZE,source);
 	safe_endReturn(BUFFER,source);
 };
 
-#macro buffer_erase(BLOCK,OFFSET,SIZE)
+#macro buffer_erase(STREAM,OFFSET,SIZE)
 {
 	#local DKusize offset;
-	block_calculateUnsafePosition(OFFSET,BLOCK.size,offset);
+	stream_calculateUnsafePosition(OFFSET,STREAM.size,offset);
 	error_bypass();
-	block_erase(BLOCK,DKu8,offset,SIZE);
+	stream_erase(STREAM,DKu8,offset,SIZE);
 };
 
 void dkBuffer_eraseScalar(DKbuffer *BUFFER,DKu8 TYPE)
 {
 	safe_start(BUFFER);
 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
-	block_erase(BUFFER->block,DKu8,BUFFER->offset,BufferSize[TYPE]);
+	stream_erase(BUFFER->stream,DKu8,BUFFER->offset,BufferSize[TYPE]);
 	safe_end(BUFFER);
 };
 
@@ -207,37 +207,37 @@ void dkBuffer_eraseScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 {
 	safe_start(BUFFER);
 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
-	buffer_erase(BUFFER->block,OFFSET,BufferSize[TYPE]);
+	buffer_erase(BUFFER->stream,OFFSET,BufferSize[TYPE]);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_eraseRaw(DKbuffer *BUFFER,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	block_erase(BUFFER->block,DKu8,BUFFER->offset,SIZE);
+	stream_erase(BUFFER->stream,DKu8,BUFFER->offset,SIZE);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_eraseRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	buffer_erase(BUFFER->block,OFFSET,SIZE);
+	buffer_erase(BUFFER->stream,OFFSET,SIZE);
 	safe_end(BUFFER);
 };
 
-#macro buffer_remove(BLOCK,OFFSET,SIZE)
+#macro buffer_remove(STREAM,OFFSET,SIZE)
 {
 	#local DKusize offset;
-	block_calculateUnsafePosition(OFFSET,BLOCK.size,offset);
+	stream_calculateUnsafePosition(OFFSET,STREAM.size,offset);
 	error_bypass();
-	block_remove(BLOCK,DKu8,offset,SIZE);
+	stream_remove(STREAM,DKu8,offset,SIZE);
 };
 
 void dkBuffer_removeScalar(DKbuffer *BUFFER,DKu8 TYPE)
 {
 	safe_start(BUFFER);
 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
-	block_remove(BUFFER->block,DKu8,BUFFER->offset,BufferSize[TYPE]);
+	stream_remove(BUFFER->stream,DKu8,BUFFER->offset,BufferSize[TYPE]);
 	safe_end(BUFFER);
 };
 
@@ -245,20 +245,20 @@ void dkBuffer_removeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 {
 	safe_start(BUFFER);
 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
-	buffer_remove(BUFFER->block,OFFSET,BufferSize[TYPE]);
+	buffer_remove(BUFFER->stream,OFFSET,BufferSize[TYPE]);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_removeRaw(DKbuffer *BUFFER,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	block_remove(BUFFER->block,DKu8,BUFFER->offset,SIZE);
+	stream_remove(BUFFER->stream,DKu8,BUFFER->offset,SIZE);
 	safe_end(BUFFER);
 };
 
 void dkBuffer_removeRawAt(DKbuffer *BUFFER,DKssize OFFSET,DKusize SIZE)
 {
 	safe_start(BUFFER);
-	buffer_remove(BUFFER->block,OFFSET,SIZE);
+	buffer_remove(BUFFER->stream,OFFSET,SIZE);
 	safe_end(BUFFER);
 };

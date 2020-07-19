@@ -20,6 +20,8 @@
 #define DKpointer void*
 typedef struct _string DKstring;
 typedef struct _buffer DKbuffer;
+typedef struct _vector DKvector;
+typedef struct _map DKmap;
 
 // Error
 void dkError_start(void);
@@ -28,7 +30,7 @@ DKnstring dkError_catch(void);
 void dkError_throw(DKnstring MESSAGE);
 void dkError_debug(DKnstring MESSAGE);
 
-//Scalar
+// Scalar
 typedef union
 {
 	DKboolean boolean;
@@ -49,6 +51,8 @@ typedef union
 	DKpointer pointer;
 	DKstring *string;
 	DKbuffer *buffer;
+	DKvector *vector;
+	DKmap *map;
 } DKscalar;
 
 // String
@@ -63,7 +67,7 @@ typedef union
 #define DARK_STRING_TRIM_ALL   2
 
 DKstring *dkString_create(void);
-DKstring *dkString_createFromRaw(DKnstring SOURCE,DKusize SIZE,DKssize START,DKssize END);
+DKstring *dkString_createFromMemory(DKnstring SOURCE,DKusize SIZE,DKssize START,DKssize END);
 DKstring *dkString_createFromFile(DKnstring FILE_NAME,DKssize START,DKssize END);
 DKstring *dkString_createFromCopy(DKstring *STRING,DKssize START,DKssize END);
 DKstring *dkString_destroy(DKstring *STRING);
@@ -79,7 +83,7 @@ DKstring *dkString_destroy(DKstring *STRING);
 			DKboolean dkString_isEmpty(DKstring *STRING);
 			void dkString_setLock(DKstring *STRING,DKboolean LOCK);
 			DKboolean dkString_getLock(DKstring *STRING);
-void dkString_debug(DKstring *STRING,DKnstring LABEL);
+				void dkString_debug(DKstring *STRING,DKnstring LABEL);
 
 // Buffer
 #define DARK_BUFFER_UNDEFINED_ENDIAN 0
@@ -119,7 +123,7 @@ void dkString_debug(DKstring *STRING,DKnstring LABEL);
 #define DARK_BUFFER_RSTRING   29
 
 DKbuffer *dkBuffer_create(DKu8 ENDIAN);
-DKbuffer *dkBuffer_createFromRaw(DKu8 *SOURCE,DKusize SIZE,DKssize START,DKssize END,DKu8 ENDIAN);
+DKbuffer *dkBuffer_createFromMemory(DKu8 *SOURCE,DKusize SIZE,DKssize START,DKssize END,DKu8 ENDIAN);
 DKbuffer *dkBuffer_createFromFile(DKnstring FILE_NAME,DKssize START,DKssize END,DKu8 ENDIAN);
 DKbuffer *dkBuffer_createFromCopy(DKbuffer *BUFFER,DKssize START,DKssize END);
 DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
@@ -158,4 +162,40 @@ DKbuffer *dkBuffer_destroy(DKbuffer *BUFFER);
 			DKboolean dkBuffer_isEmpty(DKbuffer *BUFFER);
 			void dkBuffer_setLock(DKbuffer *BUFFER,DKboolean LOCK);
 			DKboolean dkBuffer_getLock(DKbuffer *BUFFER);
-void dkBuffer_debug(DKbuffer *BUFFER,DKnstring LABEL);
+				void dkBuffer_debug(DKbuffer *BUFFER,DKnstring LABEL);
+
+// Vector
+DKvector *dkVector_create(void);
+DKvector *dkVector_createFromCopy(DKvector *VECTOR,DKssize START,DKssize END);
+DKvector *dkVector_destroy(DKvector *VECTOR);
+	void dkVector_merge(DKvector *VECTOR,DKssize INDEX,DKvector *SOURCE,DKssize START,DKssize END);
+	void dkVector_clear(DKvector *VECTOR);
+	DKboolean dkVector_compare(DKvector *VECTOR1,DKvector *VECTOR2);
+		void dkVector_prepend(DKvector *VECTOR,DKscalar VALUE);
+		void dkVector_insert(DKvector *VECTOR,DKssize INDEX,DKscalar VALUE);
+		void dkVector_append(DKvector *VECTOR,DKscalar VALUE);
+		DKscalar dkVector_replace(DKvector *VECTOR,DKssize INDEX,DKscalar VALUE);
+		DKscalar dkVector_set(DKvector *VECTOR,DKssize INDEX,DKscalar VALUE);
+		void dkVector_swap(DKvector *VECTOR,DKssize INDEX1,DKssize INDEX2);
+		DKscalar dkVector_getFront(DKvector *VECTOR);
+		DKscalar dkVector_getIndex(DKvector *VECTOR,DKssize INDEX);
+		DKscalar dkVector_getRear(DKvector *VECTOR);
+		DKscalar dkVector_dequeue(DKvector *VECTOR);
+		DKscalar dkVector_remove(DKvector *VECTOR,DKssize INDEX);
+		DKscalar dkVector_pop(DKvector *VECTOR);
+			DKusize dkVector_setSize(DKvector *VECTOR,DKusize SIZE);
+			DKusize dkVector_getSize(DKvector *VECTOR);
+			DKboolean dkVector_isEmpty(DKvector *VECTOR);
+			void dkVector_setLock(DKvector *VECTOR,DKboolean LOCK);
+			DKboolean dkVector_getLock(DKvector *VECTOR);
+				void dkVector_debug(DKvector *VECTOR,DKnstring LABEL);
+
+// Aliases
+#define dkVector_enqueue dkVector_append
+#define dkVector_push dkVector_append
+#define dkVector_getTop dkVector_getRear
+
+
+// USIZE DARKvector_search(DARKvector *VECTOR,SCALAR VALUE,BOOLEAN *FOUND);
+// void DARKvector_reverse(DARKvector *VECTOR,USIZE INDEX,USIZE SIZE);
+// void DARKvector_shuffle(DARKvector *VECTOR,USIZE INDEX,USIZE SIZE);
