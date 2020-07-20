@@ -47,8 +47,8 @@
 	error_bypass();
 	if (INDEX > BLOB.size) memset(BLOB.start + BLOB.size,0,INDEX - BLOB.size);
 	else memmove(BLOB.start + INDEX + SIZE,BLOB.start + INDEX,BLOB.size - INDEX);
-	memcpy(BLOB.start + INDEX,SOURCE,SIZE);
 	BLOB.size = size;
+	memcpy(BLOB.start + INDEX,SOURCE,SIZE);
 };
 
 #macro blob_write(BLOB,#TYPE,INDEX,SOURCE,SIZE)
@@ -74,7 +74,7 @@
 {
 	if (SIZE > BLOB.size) error_throw("invalid SIZE");
 	if ((DKssize) INDEX > (DKssize) BLOB.size - (DKssize) SIZE) error_throw("invalid INDEX");
-	memcpy(BLOB.start + INDEX,BLOB.start + INDEX + SIZE,BLOB.size - SIZE - INDEX);
 	BLOB.size -= SIZE;
+	memcpy(BLOB.start + INDEX,BLOB.start + INDEX + SIZE,BLOB.size - INDEX);
 	block_decrease(BLOB,TYPE,BLOB.size);
 };

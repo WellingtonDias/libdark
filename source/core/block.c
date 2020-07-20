@@ -13,7 +13,7 @@
 #macro block_calculateIndex(INPUT_INDEX,SIZE,OUTPUT_INDEX)
 {
 	OUTPUT_INDEX = INPUT_INDEX;
-	if (INPUT_INDEX < 0) OUTPUT_INDEX += SIZE;
+	if (OUTPUT_INDEX < 0) OUTPUT_INDEX += SIZE;
 };
 
 #alias block_validateIndex(OUTPUT_INDEX,MINIMUM_INDEX,SIZE)
@@ -176,15 +176,16 @@
 	BLOCK.start
 };
 
-#macro block_setSize(BLOCK,#TYPE,SIZE)
+#macro block_setSize(BLOCK,#TYPE,NEW_SIZE,OLD_SIZE)
 {
 	#local TYPE *source;
 	#local DKusize capacity;
 	block_trim(BLOCK,TYPE);
-	block_calculateCapacity(SIZE,capacity);
+	block_calculateCapacity(NEW_SIZE,capacity);
 	if (!(source = realloc(BLOCK.source,capacity * sizeof(TYPE)))) error_throwReturn("MEMORY: realloc");
-	if (SIZE > BLOCK.size) memset(source + BLOCK.size,0,(SIZE - BLOCK.size) * sizeof(TYPE));
-	block_update(BLOCK,source,SIZE,capacity);
+	if (NEW_SIZE > BLOCK.size) memset(source + BLOCK.size,0,(NEW_SIZE - BLOCK.size) * sizeof(TYPE));
+	OLD_SIZE = BLOCK.size;
+	block_update(BLOCK,source,NEW_SIZE,capacity);
 };
 
 #alias block_getSize(BLOCK)

@@ -40,29 +40,29 @@ DKusize dkBuffer_getOffset(DKbuffer *BUFFER)
 DKu8 *dkBuffer_getSource(DKbuffer *BUFFER)
 {
 	safe_start(BUFFER);
-	DKu8 *source = stream_getSource(BUFFER->stream);
+	DKu8 *source = block_getSource(BUFFER->block);
 	safe_endReturn(BUFFER,source);
 };
 
 DKusize dkBuffer_setSize(DKbuffer *BUFFER,DKusize SIZE)
 {
+	DKusize size;
 	safe_start(BUFFER);
-	DKusize size = (BUFFER->stream).size;
-	stream_setSize(BUFFER->stream,DKu8,SIZE);
+	block_setSize(BUFFER->block,DKu8,SIZE,size);
 	safe_endReturn(BUFFER,size);
 };
 
 DKusize dkBuffer_getSize(DKbuffer *BUFFER)
 {
 	safe_start(BUFFER);
-	DKusize size = stream_getSize(BUFFER->stream);
+	DKusize size = block_getSize(BUFFER->block);
 	safe_endReturn(BUFFER,size);
 };
 
 DKboolean dkBuffer_isEmpty(DKbuffer *BUFFER)
 {
 	safe_start(BUFFER);
-	DKboolean empty = stream_isEmpty(BUFFER->stream);
+	DKboolean empty = block_isEmpty(BUFFER->block);
 	safe_endReturn(BUFFER,empty);
 };
 

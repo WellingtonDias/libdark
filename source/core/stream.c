@@ -10,7 +10,7 @@
 		block_increase(STREAM,TYPE,STREAM.size + 1);
 		error_bypass();
 		memmove(STREAM.start + 1,STREAM.start,STREAM.size * sizeof(TYPE));
-	}
+	};
 	STREAM.start[0] = VALUE;
 	++STREAM.size;
 };
@@ -30,7 +30,7 @@
 		block_increase(STREAM,TYPE,STREAM.size + 1);
 		error_bypass();
 		memmove(STREAM.start + index + 1,STREAM.start + index,(STREAM.size - index) * sizeof(TYPE));
-	}
+	};
 	STREAM.start[index] = VALUE;
 	++STREAM.size;
 };

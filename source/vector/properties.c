@@ -1,8 +1,8 @@
 DKusize dkVector_setSize(DKvector *VECTOR,DKusize SIZE)
 {
+	DKusize size;
 	safe_start(VECTOR);
-	DKusize size = (VECTOR->block).size;
-	block_setSize(VECTOR->block,DKscalar,SIZE);
+	block_setSize(VECTOR->block,DKscalar,SIZE,size);
 	safe_endReturn(VECTOR,size);
 };
 

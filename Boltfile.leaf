@@ -7,13 +7,13 @@
 		git-commit = "https://raw.githubusercontent.com/WellingtonDias/bolt-git-commit/master/index.js",
 		merge = "https://raw.githubusercontent.com/WellingtonDias/bolt-merge/master/index.js"
 	},
-	clean = [["./output/*",[".c",".o",".a",".so"],""],["./output/",["string","buffer","vector","map"],""]],
+	clean = [["./output/*",[".c",".h",".o",".a",".so"],""],["./output/",["string","buffer","vector","map"],""]],
 	c-preprocess = "./output/DARK.c",
 	execute =
 	{
 		c =
 		[
-			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'", # -Wno-address
+			"gcc -std=c11 -Wall -Wextra -Wno-address -Wno-maybe-uninitialized -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'",
 			"ar rc './output/libdark.a' './output/DARK.o'",
 			"gcc -std=c11 -Wall -Wextra -shared -fPIC -o './output/libdark.so' './output/DARK.o'"
 		],
@@ -28,21 +28,37 @@
 	git-commit = "",
 	merge =
 	{
-		input =
-		[
-			"./source/header.c",
-			["./source/system/",["error","unsafe","safe"],".c"],
-			["./source/core/",["block","blob","stream","mutex","struct"],".c"],
-			["./source/buffer/",["header","creation","structOperations","dataOperations","properties"],".c"],
-			["./source/string/",["header","creation","structOperations","dataOperations","properties"],".c"],
-			["./source/vector/",["header","creation","structOperations","dataOperations","properties"],".c"]#,
-			# ["./source/map/",["header","creation","structOperations","dataOperations","properties"],".c"]
-		],
-		output = "./output/DARK.c"
+		source =
+		{
+			input =
+			[
+				"./source/header.c",
+				["./source/system/",["error","unsafe","safe"],".c"],
+				["./source/core/",["block","blob","stream","mutex","struct"],".c"],
+				["./source/buffer/",["header","creation","structOperations","dataOperations","properties"],".c"],
+				["./source/string/",["header","creation","structOperations","dataOperations","properties"],".c"],
+				["./source/vector/",["header","creation","structOperations","dataOperations","properties"],".c"]#,
+				# ["./source/map/",["header","creation","structOperations","dataOperations","properties"],".c"]
+			],
+			output = "./output/DARK.c"
+		},
+		include =
+		{
+			input =
+			[
+				"./include/types.h",
+				"./include/error.h",
+				"./include/string.h",
+				"./include/buffer.h",
+				"./include/vector.h"#,
+				# "./include/map.h"
+			],
+			output = "./output/DARK.h"
+		}
 	},
 	macros =
 	{
-		build-library = ["merge","c-preprocess","execute:c"],
+		build-library = ["merge:source","merge:include","c-preprocess","execute:c"],
 		build-example = ["execute:example"],
 		build-all = ["build-library","build-example"],
 		commit = "git-commit",

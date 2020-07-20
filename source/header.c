@@ -3,7 +3,7 @@
 #include <string.h>
 #include <threads.h>
 
-#include "../include/DARK.h"
+#include "../output/DARK.h"
 
 #define DARK_LITTLE_ENDIAN 1
 #define DARK_BIG_ENDIAN    2

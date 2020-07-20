@@ -1,5 +1,5 @@
-thread_local DKnstring ErrorMessage = NULL;
-thread_local DKboolean ErrorUnsafe = 0;
+thread_local DKnstring ErrorMessage;
+thread_local DKboolean ErrorUnsafe;
 
 #macro error_safeThrow()
 {

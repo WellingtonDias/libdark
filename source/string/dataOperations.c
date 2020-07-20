@@ -78,11 +78,11 @@ void dkString_convert(DKstring *STRING,DKu8 TYPE)
 	safe_start(STRING);
 	switch (TYPE)
 	{
-		case DARK_STRING_LOWER_CASE: string_lowerCase(STRING->stream); break;
-		case DARK_STRING_UPPER_CASE: string_upperCase(STRING->stream); break;
-		case DARK_STRING_PROPER_CASE: string_properCase(STRING->stream); break;
-		case DARK_STRING_ALTERNATE_CASE: string_alternateCase(STRING->stream); break;
-		case DARK_STRING_INVERT_CASE: string_invertCase(STRING->stream); break;
+		case DARK_STRING_LOWER_CASE: string_lowerCase(STRING->block); break;
+		case DARK_STRING_UPPER_CASE: string_upperCase(STRING->block); break;
+		case DARK_STRING_PROPER_CASE: string_properCase(STRING->block); break;
+		case DARK_STRING_ALTERNATE_CASE: string_alternateCase(STRING->block); break;
+		case DARK_STRING_INVERT_CASE: string_invertCase(STRING->block); break;
 		default: error_throw("invalid TYPE");
 	};
 	safe_end(STRING);
@@ -95,7 +95,7 @@ void dkString_convert(DKstring *STRING,DKu8 TYPE)
 	{
 		if (!string_isSpace(STREAM,i)) break;
 	};
-	if (i > 0) stream_remove(STREAM,DKcharacter,0,i);
+	if (i > 0) blob_remove(STREAM,DKcharacter,0,i);
 };
 
 #macro string_trimEnd(STREAM)
@@ -105,7 +105,7 @@ void dkString_convert(DKstring *STRING,DKu8 TYPE)
 	{
 		if (!string_isSpace(STREAM,(STREAM.size - 1) - i)) break;
 	};
-	if (i > 0) stream_remove(STREAM,DKcharacter,STREAM.size - i,i);
+	if (i > 0) blob_remove(STREAM,DKcharacter,STREAM.size - i,i);
 };
 
 void dkString_trim(DKstring *STRING,DKu8 TYPE)
@@ -113,12 +113,12 @@ void dkString_trim(DKstring *STRING,DKu8 TYPE)
 	safe_start(STRING);
 	switch (TYPE)
 	{
-		case DARK_STRING_TRIM_START: string_trimStart(STRING->stream); break;
-		case DARK_STRING_TRIM_END: string_trimEnd(STRING->stream); break;
+		case DARK_STRING_TRIM_START: string_trimStart(STRING->block); break;
+		case DARK_STRING_TRIM_END: string_trimEnd(STRING->block); break;
 		case DARK_STRING_TRIM_ALL:
 		{
-			string_trimStart(STRING->stream);
-			string_trimEnd(STRING->stream);
+			string_trimStart(STRING->block);
+			string_trimEnd(STRING->block);
 			break;
 		};
 		default: error_throw("invalid TYPE");

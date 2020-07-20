@@ -1,10 +1,10 @@
-stream_define(DKstream_u8,DKu8);
+block_define(DKblock_u8,DKu8);
 
 struct _buffer
 {
 	DKu8 endian;
 	DKusize offset;
-	DKstream_u8 stream;
+	DKblock_u8 block;
 	DKmutex mutex;
 };
 
@@ -26,8 +26,8 @@ DKnstring BufferNominalEndian[3] = {"UNDEFINED","LITTLE","BIG"};
 void dkBuffer_debug(DKbuffer *BUFFER,DKnstring LABEL)
 {
 	safe_start(BUFFER);
-	printf("BUFFER { endian: %s, offset: %lli, size: %lli, capacity: %lli, source: ",BufferNominalEndian[BUFFER->endian],BUFFER->offset,(BUFFER->stream).size,(BUFFER->stream).capacity);
-	for (DKusize i = 0; i < (BUFFER->stream).size; ++i) printf("%lli ",(DKusize) (BUFFER->stream).source[i]);
+	printf("BUFFER { endian: %s, offset: %lli, size: %lli, capacity: %lli, source: ",BufferNominalEndian[BUFFER->endian],BUFFER->offset,(BUFFER->block).size,(BUFFER->block).capacity);
+	for (DKusize i = 0; i < (BUFFER->block).size; ++i) printf("%lli ",(DKusize) (BUFFER->block).source[i]);
 	printf("} #%s\n",LABEL);
 	safe_end(BUFFER);
 };

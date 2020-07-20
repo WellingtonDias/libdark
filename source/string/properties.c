@@ -2,30 +2,30 @@ DKcharacter dkString_getCharacter(DKstring *STRING,DKssize INDEX)
 {
 	DKusize index = 0;
 	safe_start(STRING);
-	stream_calculateSafePosition(INDEX,(STRING->stream).size,index);
+	block_calculateSafePosition(INDEX,(STRING->block).size,index);
 	error_bypassReturn();
-	DKcharacter character = (STRING->stream).source[index];
+	DKcharacter character = (STRING->block).source[index];
 	safe_endReturn(STRING,character);
 };
 
 DKnstring dkString_getSource(DKstring *STRING)
 {
 	safe_start(STRING);
-	DKnstring source = stream_getSource(STRING->stream);
+	DKnstring source = block_getSource(STRING->block);
 	safe_endReturn(STRING,source);
 };
 
 DKusize dkString_getLength(DKstring *STRING)
 {
 	safe_start(STRING);
-	DKusize size = stream_getSize(STRING->stream);
+	DKusize size = block_getSize(STRING->block);
 	safe_endReturn(STRING,size);
 };
 
 DKboolean dkString_isEmpty(DKstring *STRING)
 {
 	safe_start(STRING);
-	DKboolean empty = stream_isEmpty(STRING->stream);
+	DKboolean empty = block_isEmpty(STRING->block);
 	safe_endReturn(STRING,empty);
 };
 

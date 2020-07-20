@@ -1,7 +1,7 @@
-void dkString_save(DKstring *STRING,DKssize START,DKssize END,DKnstring FILE_NAME)
+void dkString_saveToFile(DKstring *STRING,DKssize START,DKssize END,DKnstring FILE_NAME)
 {
 	safe_start(STRING);
-	stream_save(STRING->stream,START,END,FILE_NAME,"w");
+	blob_saveToFile(STRING->block,START,END,FILE_NAME,"w");
 	safe_end(STRING);
 };
 
@@ -9,7 +9,7 @@ void dkString_merge(DKstring *STRING,DKssize INDEX,DKstring *SOURCE,DKssize STAR
 {
 	safe_start(STRING);
 	mutex_lock(SOURCE->mutex);
-	stream_merge(STRING->stream,DKcharacter,INDEX,SOURCE->stream,START,END)
+	block_merge(STRING->block,DKcharacter,INDEX,SOURCE->block,START,END);
 	mutex_unlock(SOURCE->mutex);
 	safe_end(STRING);
 };
@@ -17,7 +17,7 @@ void dkString_merge(DKstring *STRING,DKssize INDEX,DKstring *SOURCE,DKssize STAR
 void dkString_clear(DKstring *STRING)
 {
 	safe_start(STRING);
-	stream_clear(STRING->stream,DKcharacter);
+	block_clear(STRING->block,DKcharacter);
 	safe_end(STRING);
 };
 
@@ -25,7 +25,7 @@ DKboolean dkString_compare(DKstring *STRING1,DKstring *STRING2)
 {
 	safe_start(STRING1);
 	mutex_lock(STRING2->mutex);
-	DKboolean comparison = stream_compare(STRING1->stream,STRING2->stream,DKcharacter);
+	DKboolean comparison = block_compare(STRING1->block,STRING2->block,DKcharacter);
 	mutex_unlock(STRING2->mutex);
 	safe_endReturn(STRING1,comparison);
 };
