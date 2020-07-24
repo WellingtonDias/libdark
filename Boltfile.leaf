@@ -7,7 +7,7 @@
 		git-commit = "https://raw.githubusercontent.com/WellingtonDias/bolt-git-commit/master/index.js",
 		merge = "https://raw.githubusercontent.com/WellingtonDias/bolt-merge/master/index.js"
 	},
-	clean = [["./output/*",[".c",".h",".o",".a",".so"],""],["./output/",["string","buffer","vector","map"],""]],
+	clean = [["./output/*",[".h",".c",".o",".a",".so"],""],["./output/",["string","buffer","vector","map"],""]],
 	c-preprocess = "./output/DARK.c",
 	execute =
 	{
@@ -28,6 +28,19 @@
 	git-commit = "",
 	merge =
 	{
+		header =
+		{
+			input =
+			[
+				"./include/types.h",
+				"./include/error.h",
+				"./include/string.h",
+				"./include/buffer.h",
+				"./include/vector.h"#,
+				# "./include/map.h"
+			],
+			output = "./output/DARK.h"
+		},
 		source =
 		{
 			input =
@@ -41,24 +54,11 @@
 				# ["./source/map/",["header","creation","structOperations","dataOperations","properties"],".c"]
 			],
 			output = "./output/DARK.c"
-		},
-		include =
-		{
-			input =
-			[
-				"./include/types.h",
-				"./include/error.h",
-				"./include/string.h",
-				"./include/buffer.h",
-				"./include/vector.h"#,
-				# "./include/map.h"
-			],
-			output = "./output/DARK.h"
 		}
 	},
 	macros =
 	{
-		build-library = ["merge:source","merge:include","c-preprocess","execute:c"],
+		build-library = ["merge:header","merge:source","c-preprocess","execute:c"],
 		build-example = ["execute:example"],
 		build-all = ["build-library","build-example"],
 		commit = "git-commit",

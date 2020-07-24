@@ -2,7 +2,7 @@ void dkVector_merge(DKvector *VECTOR,DKssize INDEX,DKvector *SOURCE,DKssize STAR
 {
 	safe_start(VECTOR);
 	mutex_lock(SOURCE->mutex);
-	block_merge(VECTOR->block,DKscalar,INDEX,SOURCE->block,START,END)
+	block_merge(VECTOR->block,DKscalar,INDEX,SOURCE->block,START,END);
 	mutex_unlock(SOURCE->mutex);
 	safe_end(VECTOR);
 };
