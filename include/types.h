@@ -20,10 +20,10 @@
 #define DKpointer void*
 typedef struct _string DKstring;
 typedef struct _buffer DKbuffer;
-typedef struct _vector DKvector;
-typedef struct _map DKmap;
+typedef struct _ordinal DKordinal;
+typedef struct _nominal DKnominal;
 
-// Scalar
+// Handle
 typedef union
 {
 	DKboolean boolean;
@@ -41,9 +41,9 @@ typedef union
 	DKf64 f64;
 	DKcharacter character;
 	DKnstring nstring;
-	DKpointer pointer;
 	DKstring *string;
 	DKbuffer *buffer;
-	DKvector *vector;
-	DKmap *map;
-} DKscalar;
+	DKordinal *ordinal;
+	DKnominal *nominal;
+	DKpointer pointer;
+} DKhandle;

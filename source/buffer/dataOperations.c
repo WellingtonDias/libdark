@@ -1,8 +1,8 @@
-// #macro buffer_getScalar(BUFFER,SCALAR,TYPE,SOURCE,SIZE)
+// #macro buffer_getHandle(BUFFER,HANDLE,TYPE,SOURCE,SIZE)
 // {
 // 	if (TYPE < DARK_BUFFER_NSTRING)
 // 	{
-// 		SOURCE = (DKu8*) &SCALAR;
+// 		SOURCE = (DKu8*) &HANDLE;
 // 		SIZE = BufferSize[TYPE];
 // 	}
 // 	else
@@ -12,8 +12,8 @@
 // 			case DARK_BUFFER_NSTRING:
 // 			case DARK_BUFFER_RSTRING:
 // 			{
-// 				SOURCE = (DKu8*) SCALAR.nstring;
-// 				SIZE = strlen(SCALAR.nstring);
+// 				SOURCE = (DKu8*) HANDLE.nstring;
+// 				SIZE = strlen(HANDLE.nstring);
 // 				if (TYPE == DARK_BUFFER_NSTRING) ++SIZE;
 // 				else if (SIZE == 0) error_throw("invalid SOURCE");
 // 				break;
@@ -23,18 +23,18 @@
 // 	};
 // };
 
-// void dkBuffer_insertScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
+// void dkBuffer_insertHandle(DKbuffer *BUFFER,DKhandle SOURCE,DKu8 TYPE)
 // {
 // 	DKu8 *source;
 // 	DKusize size;
 // 	safe_start(BUFFER);
-// 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
+// 	buffer_getHandle(BUFFER,SOURCE,TYPE,source,size);
 // 	blob_insert(BUFFER->block,DKu8,BUFFER->offset,source,size);
 // 	BUFFER->offset += size;
 // 	safe_end(BUFFER);
 // };
 
-// void dkBuffer_insertScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKscalar SOURCE,DKu8 TYPE)
+// void dkBuffer_insertHandleAt(DKbuffer *BUFFER,DKssize OFFSET,DKhandle SOURCE,DKu8 TYPE)
 // {
 // 	DKusize offset;
 // 	DKu8 *source;
@@ -42,7 +42,7 @@
 // 	safe_start(BUFFER);
 // 	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
 // 	error_bypass();
-// 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
+// 	buffer_getHandle(BUFFER,SOURCE,TYPE,source,size);
 // 	blob_insert(BUFFER->block,DKu8,offset,source,size);
 // 	safe_end(BUFFER);
 // };
@@ -65,18 +65,18 @@
 // 	safe_end(BUFFER);
 // };
 
-// void dkBuffer_writeScalar(DKbuffer *BUFFER,DKscalar SOURCE,DKu8 TYPE)
+// void dkBuffer_writeHandle(DKbuffer *BUFFER,DKhandle SOURCE,DKu8 TYPE)
 // {
 // 	DKu8 *source;
 // 	DKusize size;
 // 	safe_start(BUFFER);
-// 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
+// 	buffer_getHandle(BUFFER,SOURCE,TYPE,source,size);
 // 	blob_write(BUFFER->block,DKu8,BUFFER->offset,source,size);
 // 	BUFFER->offset += size;
 // 	safe_end(BUFFER);
 // };
 
-// void dkBuffer_writeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKscalar SOURCE,DKu8 TYPE)
+// void dkBuffer_writeHandleAt(DKbuffer *BUFFER,DKssize OFFSET,DKhandle SOURCE,DKu8 TYPE)
 // {
 // 	DKusize offset;
 // 	DKu8 *source;
@@ -84,7 +84,7 @@
 // 	safe_start(BUFFER);
 // 	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
 // 	error_bypass();
-// 	buffer_getScalar(BUFFER,SOURCE,TYPE,source,size);
+// 	buffer_getHandle(BUFFER,SOURCE,TYPE,source,size);
 // 	blob_write(BUFFER->block,DKu8,offset,source,size);
 // 	safe_end(BUFFER);
 // };
@@ -109,54 +109,54 @@
 
 // #macro buffer_getStringLength(STREAM,OFFSET,LENGTH)
 // {
-// 	if (OFFSET >= STREAM.size) error_throwCastReturn("invalid OFFSET",DKscalar);
+// 	if (OFFSET >= STREAM.size) error_throwCastReturn("invalid OFFSET",DKhandle);
 // 	while (true)
 // 	{
 // 		if (STREAM.source[OFFSET + LENGTH] == '\0') break;
 // 		++LENGTH;
-// 		if (OFFSET + LENGTH == STREAM.size) error_throwCastReturn("invalid TYPE",DKscalar);
+// 		if (OFFSET + LENGTH == STREAM.size) error_throwCastReturn("invalid TYPE",DKhandle);
 // 	};
 // 	++LENGTH;
 // };
 
-// #macro buffer_readScalar(STREAM,OFFSET,TYPE,SOURCE,SIZE)
+// #macro buffer_readHandle(STREAM,OFFSET,TYPE,SOURCE,SIZE)
 // {
-// 	if (TYPE > DARK_BUFFER_NSTRING) error_throwCastReturn("invalid TYPE",DKscalar);
+// 	if (TYPE > DARK_BUFFER_NSTRING) error_throwCastReturn("invalid TYPE",DKhandle);
 // 	if (TYPE != DARK_BUFFER_NSTRING)
 // 	{
 // 		SIZE = BufferSize[TYPE];
-// 		if (SIZE > STREAM.size) error_throwCastReturn("invalid SIZE",DKscalar);
-// 		if ((DKssize) OFFSET > (DKssize) STREAM.size - (DKssize) SIZE) error_throwCastReturn("invalid OFFSET",DKscalar);
+// 		if (SIZE > STREAM.size) error_throwCastReturn("invalid SIZE",DKhandle);
+// 		if ((DKssize) OFFSET > (DKssize) STREAM.size - (DKssize) SIZE) error_throwCastReturn("invalid OFFSET",DKhandle);
 // 		memcpy(&SOURCE,STREAM.source + OFFSET,SIZE);
 // 	}
 // 	else
 // 	{
 // 		buffer_getStringLength(STREAM,OFFSET,SIZE);
-// 		if (!(SOURCE.nstring = malloc(SIZE))) error_throwCastReturn("MEMORY: malloc",DKscalar);
+// 		if (!(SOURCE.nstring = malloc(SIZE))) error_throwCastReturn("MEMORY: malloc",DKhandle);
 // 		memcpy(SOURCE.nstring,STREAM.source + OFFSET,SIZE);
 // 	};
 // };
 
-// DKscalar dkBuffer_readScalar(DKbuffer *BUFFER,DKu8 TYPE)
+// DKhandle dkBuffer_readHandle(DKbuffer *BUFFER,DKu8 TYPE)
 // {
-// 	DKscalar source;
+// 	DKhandle source;
 // 	DKusize size;
 // 	safe_start(BUFFER);
-// 	buffer_readScalar(BUFFER->block,BUFFER->offset,TYPE,source,size);
+// 	buffer_readHandle(BUFFER->block,BUFFER->offset,TYPE,source,size);
 // 	BUFFER->offset += size;
-// 	safe_endCastReturn(BUFFER,source,DKscalar);
+// 	safe_endCastReturn(BUFFER,source,DKhandle);
 // };
 
-// DKscalar dkBuffer_readScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
+// DKhandle dkBuffer_readHandleAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 // {
 // 	DKusize offset;
-// 	DKscalar source;
+// 	DKhandle source;
 // 	DKusize size;
 // 	safe_start(BUFFER);
 // 	block_calculateUnsafePosition(OFFSET,(BUFFER->block).size,offset);
-// 	error_bypassCastReturn(DKscalar);
-// 	buffer_readScalar(BUFFER->block,offset,TYPE,source,size);
-// 	safe_endCastReturn(BUFFER,source,DKscalar);
+// 	error_bypassCastReturn(DKhandle);
+// 	buffer_readHandle(BUFFER->block,offset,TYPE,source,size);
+// 	safe_endCastReturn(BUFFER,source,DKhandle);
 // };
 
 // #macro buffer_readRaw(STREAM,OFFSET,SIZE,SOURCE)
@@ -195,7 +195,7 @@
 // 	blob_erase(STREAM,DKu8,offset,SIZE);
 // };
 
-// void dkBuffer_eraseScalar(DKbuffer *BUFFER,DKu8 TYPE)
+// void dkBuffer_eraseHandle(DKbuffer *BUFFER,DKu8 TYPE)
 // {
 // 	safe_start(BUFFER);
 // 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
@@ -203,7 +203,7 @@
 // 	safe_end(BUFFER);
 // };
 
-// void dkBuffer_eraseScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
+// void dkBuffer_eraseHandleAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 // {
 // 	safe_start(BUFFER);
 // 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
@@ -233,7 +233,7 @@
 // 	blob_remove(STREAM,DKu8,offset,SIZE);
 // };
 
-// void dkBuffer_removeScalar(DKbuffer *BUFFER,DKu8 TYPE)
+// void dkBuffer_removeHandle(DKbuffer *BUFFER,DKu8 TYPE)
 // {
 // 	safe_start(BUFFER);
 // 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
@@ -241,7 +241,7 @@
 // 	safe_end(BUFFER);
 // };
 
-// void dkBuffer_removeScalarAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
+// void dkBuffer_removeHandleAt(DKbuffer *BUFFER,DKssize OFFSET,DKu8 TYPE)
 // {
 // 	safe_start(BUFFER);
 // 	if (TYPE > DARK_BUFFER_F64) error_throw("invalid TYPE");
