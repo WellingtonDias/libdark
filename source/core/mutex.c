@@ -6,8 +6,8 @@ typedef struct
 #macro mutex_enable(MUTEX)
 {
 	#local mtx_t *lock;
-	if (!(lock = malloc(sizeof(mtx_t)))) error_throw("MEMORY: malloc");
-	if (mtx_init(lock,mtx_plain) == thrd_error) error_throw("MUTEX: init");
+	if (!(lock = malloc(sizeof(mtx_t)))) error_throwReturn("MEMORY: malloc");
+	if (mtx_init(lock,mtx_plain) == thrd_error) error_throwReturn("MUTEX: init");
 	MUTEX.lock = lock;
 };
 
@@ -44,10 +44,10 @@ typedef struct
 	if (LOCK)
 	{
 		if (!(MUTEX.lock)) mutex_enable(MUTEX)
-		else error_throw("invalid LOCK");
+		else error_throwReturn("invalid LOCK");
 	}
 	else if (MUTEX.lock) mutex_disable(MUTEX)
-	else error_throw("invalid LOCK");
+	else error_throwReturn("invalid LOCK");
 };
 
 #alias mutex_getLock(MUTEX)

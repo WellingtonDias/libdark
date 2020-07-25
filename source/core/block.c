@@ -197,3 +197,8 @@
 {
 	BLOCK.size == 0
 };
+
+#alias block_isNotEmpty(BLOCK)
+{
+	BLOCK.size != 0
+};

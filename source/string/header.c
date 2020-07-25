@@ -6,9 +6,9 @@ struct _string
 	DKmutex mutex;
 };
 
-void dkString_debug(DKstring *STRING,DKnstring LABEL)
+void dkString_debug(DKstring *STRING,DKnullString LABEL)
 {
 	safe_start(STRING);
-	printf("STRING { size: %lli, source: \"%.*s\" } #%s\n",(STRING->block).size,(DKu32) (STRING->block).size,(STRING->block).start,LABEL);
+	printf("STRING { length: %lli,source: \"%.*s\" } #%s\n",(STRING->block).size,(DKu32) (STRING->block).size,(STRING->block).start,LABEL);
 	safe_end(STRING);
 };

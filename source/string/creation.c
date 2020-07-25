@@ -6,21 +6,21 @@ DKstring *dkString_create(void)
 	return string;
 };
 
-DKstring *dkString_createFromMemory(DKnstring SOURCE,DKusize SIZE,DKssize START,DKssize END)
+DKstring *dkString_createFromMemory(DKnullString SOURCE,DKusize LENGTH,DKssize START,DKssize END)
 {
 	DKstring *string;
 	unsafe_start();
-	DKusize size = (SIZE > 0)? SIZE : strlen(SOURCE);
-	struct_createFromMemory(DKstring,DKcharacter,SOURCE,size,START,END,string);
+	DKusize length = (LENGTH > 0)? LENGTH : strlen(SOURCE);
+	struct_createFromMemory(DKstring,DKcharacter,SOURCE,length,START,END,string);
 	return string;
 };
 
-DKstring *dkString_createFromFile(DKnstring FILE_NAME,DKssize START,DKssize END)
+DKstring *dkString_createFromFile(DKnullString FILE_NAME,DKssize START,DKssize END)
 {
 	DKstring *string;
 	unsafe_start();
 	struct_create(DKstring,string);
-	blob_createFromFile(string->block,DKcharacter,FILE_NAME,"r",START,END);
+	buffer_createFromFile(string->block,DKcharacter,FILE_NAME,"r",START,END);
 	return string;
 };
 

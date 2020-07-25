@@ -1,4 +1,4 @@
-thread_local DKnstring ErrorMessage;
+thread_local DKnullString ErrorMessage;
 thread_local DKboolean ErrorUnsafe;
 
 #macro error_safeThrow()
@@ -65,21 +65,21 @@ void dkError_end(void)
 	ErrorUnsafe -= 1;
 };
 
-DKnstring dkError_catch(void)
+DKnullString dkError_catch(void)
 {
-	DKnstring error;
+	DKnullString error;
 	if (!(error = ErrorMessage)) return NULL;
 	ErrorMessage = NULL;
 	return error;
 };
 
-void dkError_throw(DKnstring MESSAGE)
+void dkError_throw(DKnullString MESSAGE)
 {
-	printf("Error: %s.\n",MESSAGE);
+	printf("ERROR: %s.\n",MESSAGE);
 	exit(EXIT_FAILURE);
 };
 
-void dkError_debug(DKnstring MESSAGE)
+void dkError_debug(DKnullString MESSAGE)
 {
-	printf("Error: %s.\n",MESSAGE);
+	printf("ERROR: %s.\n",MESSAGE);
 };

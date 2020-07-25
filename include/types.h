@@ -16,10 +16,10 @@
 #define DKf32 float
 #define DKf64 double
 #define DKcharacter char
-#define DKnstring char*
+#define DKnullString char*
 #define DKpointer void*
 typedef struct _string DKstring;
-typedef struct _buffer DKbuffer;
+typedef struct _blob DKblob;
 typedef struct _ordinal DKordinal;
 typedef struct _nominal DKnominal;
 
@@ -40,9 +40,9 @@ typedef union
 	DKf32 f32;
 	DKf64 f64;
 	DKcharacter character;
-	DKnstring nstring;
+	DKnullString nullString;
 	DKstring *string;
-	DKbuffer *buffer;
+	DKblob *blob;
 	DKordinal *ordinal;
 	DKnominal *nominal;
 	DKpointer pointer;

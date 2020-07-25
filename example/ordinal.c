@@ -62,6 +62,7 @@ int main(void)
 	dkOrdinal_debug(ordinal3,"clear");
 
 	printf("EMPTY: %i\n",dkOrdinal_isEmpty(ordinal3));
+	printf("NOT EMPTY: %i\n",dkOrdinal_isNotEmpty(ordinal3));
 
 	ordinal1 = dkOrdinal_destroy(ordinal1);
 	ordinal2 = dkOrdinal_destroy(ordinal2);

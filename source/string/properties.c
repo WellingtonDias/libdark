@@ -1,25 +1,35 @@
-DKcharacter dkString_getCharacter(DKstring *STRING,DKssize INDEX)
+DKcharacter dkString_getCode(DKstring *STRING,DKssize INDEX)
 {
-	DKusize index = 0;
+	DKusize index;
 	safe_start(STRING);
 	block_calculateSafePosition(INDEX,(STRING->block).size,index);
 	error_bypassReturn();
-	DKcharacter character = (STRING->block).source[index];
+	DKcharacter code = (STRING->block).start[index];
+	safe_endReturn(STRING,code);
+};
+
+DKnullString dkString_getCharacter(DKstring *STRING,DKssize INDEX)
+{
+	DKusize index;
+	safe_start(STRING);
+	block_calculateSafePosition(INDEX,(STRING->block).size,index);
+	error_bypassReturn();
+	DKnullString character = (STRING->block).start + index;
 	safe_endReturn(STRING,character);
 };
 
-DKnstring dkString_getSource(DKstring *STRING)
+DKnullString dkString_getSource(DKstring *STRING)
 {
 	safe_start(STRING);
-	DKnstring source = block_getSource(STRING->block);
+	DKnullString source = block_getSource(STRING->block);
 	safe_endReturn(STRING,source);
 };
 
 DKusize dkString_getLength(DKstring *STRING)
 {
 	safe_start(STRING);
-	DKusize size = block_getSize(STRING->block);
-	safe_endReturn(STRING,size);
+	DKusize length = block_getSize(STRING->block);
+	safe_endReturn(STRING,length);
 };
 
 DKboolean dkString_isEmpty(DKstring *STRING)
@@ -29,11 +39,18 @@ DKboolean dkString_isEmpty(DKstring *STRING)
 	safe_endReturn(STRING,empty);
 };
 
-void dkString_setLock(DKstring *STRING,DKboolean LOCK)
+DKboolean dkString_isNotEmpty(DKstring *STRING)
+{
+	safe_start(STRING);
+	DKboolean empty = block_isNotEmpty(STRING->block);
+	safe_endReturn(STRING,empty);
+};
+
+DKboolean dkString_setLock(DKstring *STRING,DKboolean LOCK)
 {
 	safe_start(STRING);
 	mutex_setLock(STRING->mutex,LOCK);
-	safe_end(STRING);
+	safe_endReturn(STRING,!LOCK);
 };
 
 DKboolean dkString_getLock(DKstring *STRING)

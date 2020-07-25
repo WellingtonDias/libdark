@@ -4,103 +4,103 @@
 #include <threads.h>
 #include <time.h>
 
-DKbuffer *Buffer;
+DKblob *Blob;
 DKu8 *Source;
 
 void independent(void)
 {
-	DKbuffer *buffer1 = dkBuffer_create(DARK_BUFFER_SYSTEM_ENDIAN);
-	dkBuffer_debug(buffer1,"create");
+	DKblob *blob1 = dkBlob_create(DARK_BLOB_SYSTEM_ENDIAN);
+	dkBlob_debug(blob1,"create");
 
 	DKu8 source[5] = {0,1,2,3,4};
-	DKbuffer *buffer2 = dkBuffer_createFromRaw((DKpointer) &source,5,1,-2,DARK_BUFFER_SYSTEM_ENDIAN);
-	dkBuffer_debug(buffer2,"createFromRaw");
+	DKblob *blob2 = dkBlob_createFromRaw((DKpointer) &source,5,1,-2,DARK_BLOB_SYSTEM_ENDIAN);
+	dkBlob_debug(blob2,"createFromRaw");
 
-	DKbuffer *buffer3 = dkBuffer_createFromCopy(buffer2,0,-1);
-	dkBuffer_debug(buffer3,"createFromCopy");
+	DKblob *blob3 = dkBlob_createFromCopy(blob2,0,-1);
+	dkBlob_debug(blob3,"createFromCopy");
 
-	DKbuffer *buffer4 = dkBuffer_createFromFile("./example/buffer_load",0,-1,DARK_BUFFER_SYSTEM_ENDIAN);
-	dkBuffer_debug(buffer4,"createFromFile");
+	DKblob *blob4 = dkBlob_createFromFile("./example/blob_load",0,-1,DARK_BLOB_SYSTEM_ENDIAN);
+	dkBlob_debug(blob4,"createFromFile");
 
-	dkBuffer_save(buffer4,0,-1,"./example/buffer_save");
-	dkBuffer_save(buffer4,5,9,"./example/buffer_partialSave");
+	dkBlob_save(blob4,0,-1,"./example/blob_save");
+	dkBlob_save(blob4,5,9,"./example/blob_partialSave");
 
-	DKbuffer *buffer5 = dkBuffer_createFromCopy(buffer4,0,-1);
-	dkBuffer_merge(buffer5,5,buffer2,1,2);
-	dkBuffer_debug(buffer5,"merge");
+	DKblob *blob5 = dkBlob_createFromCopy(blob4,0,-1);
+	dkBlob_merge(blob5,5,blob2,1,2);
+	dkBlob_debug(blob5,"merge");
 
-	dkBuffer_clear(buffer5);
-	dkBuffer_debug(buffer5,"clear");
+	dkBlob_clear(blob5);
+	dkBlob_debug(blob5,"clear");
 
-	buffer1 = dkBuffer_destroy(buffer1);
-	buffer2 = dkBuffer_destroy(buffer2);
-	buffer3 = dkBuffer_destroy(buffer3);
-	buffer4 = dkBuffer_destroy(buffer4);
-	buffer5 = dkBuffer_destroy(buffer5);
+	blob1 = dkBlob_destroy(blob1);
+	blob2 = dkBlob_destroy(blob2);
+	blob3 = dkBlob_destroy(blob3);
+	blob4 = dkBlob_destroy(blob4);
+	blob5 = dkBlob_destroy(blob5);
 };
 
 int dependent(void *arg)
 {
 	clock_t time = clock();
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
-	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBuffer_writeRaw(Buffer,Source,256);
-	dkBuffer_resetOffset(Buffer);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
+	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_writeRaw(Blob,Source,256);
+	dkBlob_resetOffset(Blob);
 	printf("MULTI-THREAD  TIME: %lf\n",(DKf64) (clock() - time) / CLOCKS_PER_SEC);
 	return EXIT_SUCCESS;
 };
 
 void dependent2()
 {
-	DKbuffer *buffer = dkBuffer_create(DARK_BUFFER_SYSTEM_ENDIAN);
-	dkBuffer_setLock(buffer,true);
-	dkBuffer_writeRawAt(buffer,2684354560,Source,256);
+	DKblob *blob = dkBlob_create(DARK_BLOB_SYSTEM_ENDIAN);
+	dkBlob_setLock(blob,true);
+	dkBlob_writeRawAt(blob,2684354560,Source,256);
 	clock_t time = clock();
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
-	dkBuffer_resetOffset(buffer);
-	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBuffer_writeRaw(buffer,Source,256);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
+	dkBlob_resetOffset(blob);
+	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_writeRaw(blob,Source,256);
 	printf("SINGLE-THREAD TIME: %lf\n",(DKf64) (clock() - time) / CLOCKS_PER_SEC);
-	buffer = dkBuffer_destroy(buffer);
+	blob = dkBlob_destroy(blob);
 };
 
 int main(void)
@@ -108,16 +108,16 @@ int main(void)
 	thrd_t list[10];
 	independent();
 	Source = malloc(256);
-	Buffer = dkBuffer_create(DARK_BUFFER_SYSTEM_ENDIAN);
-	dkBuffer_debug(Buffer,"create");
-	dkBuffer_setLock(Buffer,true);
-	dkBuffer_writeRawAt(Buffer,2684354560,Source,256);
+	Blob = dkBlob_create(DARK_BLOB_SYSTEM_ENDIAN);
+	dkBlob_debug(Blob,"create");
+	dkBlob_setLock(Blob,true);
+	dkBlob_writeRawAt(Blob,2684354560,Source,256);
 	for (DKusize i = 0; i < 10; ++i)
 	{
 		if (thrd_create(list + i,dependent,NULL) == thrd_success) thrd_detach(list[i]);
 	};
 	dependent2();
 	while (true) {};
-	Buffer = dkBuffer_destroy(Buffer);
+	Blob = dkBlob_destroy(Blob);
 	return EXIT_SUCCESS;
 };

@@ -1,7 +1,7 @@
-void dkString_saveToFile(DKstring *STRING,DKssize START,DKssize END,DKnstring FILE_NAME)
+void dkString_saveToFile(DKstring *STRING,DKssize START,DKssize END,DKnullString FILE_NAME)
 {
 	safe_start(STRING);
-	blob_saveToFile(STRING->block,START,END,FILE_NAME,"w");
+	buffer_saveToFile(STRING->block,START,END,FILE_NAME,"w");
 	safe_end(STRING);
 };
 

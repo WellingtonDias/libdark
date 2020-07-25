@@ -52,6 +52,7 @@ int main(void)
 	DKnominal_debug(nominal2,"clear");
 
 	printf("EMPTY: %i\n",DKnominal_isEmpty(nominal2));
+	printf("NOT EMPTY: %i\n",DKnominal_isNotEmpty(nominal2));
 
 	nominal1 = DKnominal_destroy(nominal1);
 	nominal2 = DKnominal_destroy(nominal2);

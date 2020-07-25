@@ -20,6 +20,13 @@ DKboolean dkOrdinal_isEmpty(DKordinal *ORDINAL)
 	safe_endReturn(ORDINAL,empty);
 };
 
+DKboolean dkOrdinal_isNotEmpty(DKordinal *ORDINAL)
+{
+	safe_start(ORDINAL);
+	DKboolean empty = block_isNotEmpty(ORDINAL->block);
+	safe_endReturn(ORDINAL,empty);
+};
+
 void dkOrdinal_setLock(DKordinal *ORDINAL,DKboolean LOCK)
 {
 	safe_start(ORDINAL);
