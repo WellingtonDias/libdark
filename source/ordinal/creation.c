@@ -2,7 +2,7 @@ DKordinal *dkOrdinal_create(void)
 {
 	DKordinal *ordinal;
 	unsafe_start();
-	struct_createFromNothing(DKordinal,DKhandle,ordinal);
+	struct_createFromNothing(DKordinal,DKhandleUnion,ordinal);
 	return ordinal;
 };
 
@@ -10,7 +10,7 @@ DKordinal *dkOrdinal_createFromCopy(DKordinal *ORDINAL,DKssize START,DKssize END
 {
 	DKordinal *ordinal;
 	safe_start(ORDINAL);
-	struct_createFromMemory(DKordinal,DKhandle,(ORDINAL->block).start,(ORDINAL->block).size,START,END,ordinal);
+	struct_createFromMemory(DKordinal,DKhandleUnion,(ORDINAL->block).start,(ORDINAL->block).size,START,END,ordinal);
 	safe_endReturn(ORDINAL,ordinal);
 };
 

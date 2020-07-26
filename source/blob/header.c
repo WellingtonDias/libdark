@@ -8,10 +8,8 @@ struct _blob
 	DKmutex mutex;
 };
 
-DKu8 BlobSize[28] = {1,1,1,2,2,2,2,2,2,4,4,4,4,4,4,8,8,8,8,8,8,4,4,4,8,8,8,1};
-DKnullString BlobNominalEndian[3] = {"UNDEFINED","LITTLE","BIG"};
-DKboolean BlobUndefinedEndian[28] = {true,true,true,true,true,false,true,true,false,true,true,false,true,true,false,true,true,false,true,true,false,true,true,false,true,true,false,true};
-DKboolean BlobDefinedEndian[28] = {true,true,true,false,false,true,false,false,true,false,false,true,false,false,true,false,false,true,false,false,true,false,false,true,false,false,true,true};
+DKu8 blob_typeToSize[28] = {1,1,1,2,2,2,2,2,2,4,4,4,4,4,4,8,8,8,8,8,8,4,4,4,8,8,8,1};
+DKnullString blob_endianToString[3] = {"UNDEFINED","LITTLE","BIG"};
 
 #macro blob_calculateEndian(INPUT_ENDIAN,OUTPUT_ENDIAN)
 {
@@ -20,16 +18,16 @@ DKboolean BlobDefinedEndian[28] = {true,true,true,false,false,true,false,false,t
 		case DARK_BLOB_UNDEFINED_ENDIAN:
 		case DARK_BLOB_LITTLE_ENDIAN:
 		case DARK_BLOB_BIG_ENDIAN: OUTPUT_ENDIAN = INPUT_ENDIAN; break;
-		case DARK_BLOB_SYSTEM_ENDIAN: OUTPUT_ENDIAN = DARK_ENDIAN; break;
-		default: error_set("invalid ENDIAN");
+		case DARK_BLOB_SYSTEM_ENDIAN: OUTPUT_ENDIAN = DARK_SYSTEM_ENDIAN; break;
+		default: error_throwReturn("invalid ENDIAN");
 	};
 };
 
 void dkBlob_debug(DKblob *BLOB,DKnullString LABEL)
 {
 	safe_start(BLOB);
-	printf("BLOB { endian: %s,offset: %lli,size: %lli,capacity: %lli,source: ",BlobNominalEndian[BLOB->endian],BLOB->offset,(BLOB->block).size,(BLOB->block).capacity);
-	for (DKusize i = 0; i < (BLOB->block).size; ++i) printf("%lli ",(DKusize) (BLOB->block).start[i]);
+	printf("BLOB { endian: %s, offset: %lli, size: %lli, source: ",blob_endianToString[BLOB->endian],BLOB->offset,block_getSize(BLOB->block));
+	for (DKusize i = 0; i < block_getSize(BLOB->block); ++i) printf("%lli ",(DKusize) block_getSource(BLOB->block)[i]);
 	printf("} #%s\n",LABEL);
 	safe_end(BLOB);
 };

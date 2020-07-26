@@ -1,23 +1,3 @@
-DKcharacter dkString_getCode(DKstring *STRING,DKssize INDEX)
-{
-	DKusize index;
-	safe_start(STRING);
-	block_calculateSafePosition(INDEX,(STRING->block).size,index);
-	error_bypassReturn();
-	DKcharacter code = (STRING->block).start[index];
-	safe_endReturn(STRING,code);
-};
-
-DKnullString dkString_getCharacter(DKstring *STRING,DKssize INDEX)
-{
-	DKusize index;
-	safe_start(STRING);
-	block_calculateSafePosition(INDEX,(STRING->block).size,index);
-	error_bypassReturn();
-	DKnullString character = (STRING->block).start + index;
-	safe_endReturn(STRING,character);
-};
-
 DKnullString dkString_getSource(DKstring *STRING)
 {
 	safe_start(STRING);

@@ -64,7 +64,7 @@
 		error_bypassCastReturn(TYPE);
 		if (index > STREAM.size) memset(STREAM.start + STREAM.size,0,(index - STREAM.size) * sizeof(TYPE));
 		STREAM.size = index + 1;
-		OLD_SOURCE = (DKhandle) NULL;
+		OLD_SOURCE = (DKhandleUnion) NULL;
 	};
 	STREAM.start[index] = NEW_SOURCE;
 };

@@ -3,7 +3,6 @@ DKu8 dkBlob_setEndian(DKblob *BLOB,DKu8 ENDIAN)
 	safe_start(BLOB);
 	DKu8 endian = BLOB->endian;
 	blob_calculateEndian(ENDIAN,BLOB->endian);
-	error_bypassReturn();
 	safe_endReturn(BLOB,endian);
 };
 
@@ -73,11 +72,11 @@ DKboolean dkBlob_isNotEmpty(DKblob *BLOB)
 	safe_endReturn(BLOB,empty);
 };
 
-void dkBlob_setLock(DKblob *BLOB,DKboolean LOCK)
+DKboolean dkBlob_setLock(DKblob *BLOB,DKboolean LOCK)
 {
 	safe_start(BLOB);
 	mutex_setLock(BLOB->mutex,LOCK);
-	safe_end(BLOB);
+	safe_endReturn(BLOB,!LOCK);
 };
 
 DKboolean dkBlob_getLock(DKblob *BLOB)

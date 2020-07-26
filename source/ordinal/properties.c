@@ -2,7 +2,7 @@ DKusize dkOrdinal_setSize(DKordinal *ORDINAL,DKusize SIZE)
 {
 	DKusize size;
 	safe_start(ORDINAL);
-	block_setSize(ORDINAL->block,DKhandle,SIZE,size);
+	block_setSize(ORDINAL->block,DKhandleUnion,SIZE,size);
 	safe_endReturn(ORDINAL,size);
 };
 

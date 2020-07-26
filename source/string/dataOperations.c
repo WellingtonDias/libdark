@@ -1,89 +1,83 @@
-#macro string_calculateStartSpace(BUFFER,START)
+#alias char_isSpace(BUFFER,INDEX)
 {
-	#local DKusize i;
-	for (i = 0; i < BUFFER.size; ++i)
-	{
-		if (!string_isSpace(BUFFER,i)) break;
-	};
-	START = i;
+	(block_getSource(BUFFER)[INDEX] == ' ') || (block_getSource(BUFFER)[INDEX] == '\t') || (block_getSource(BUFFER)[INDEX] == '\v') || (block_getSource(BUFFER)[INDEX] == '\f') || (block_getSource(BUFFER)[INDEX] == '\r') || (block_getSource(BUFFER)[INDEX] == '\n')
 };
 
-#macro string_calculateEndSpace(BUFFER,END)
+#alias char_isNotSpace(BUFFER,INDEX)
 {
-	#local DKusize i;
-	for (i = 0; i < BUFFER.size; ++i)
-	{
-		if (!string_isSpace(BUFFER,(BUFFER.size - 1) - i)) break;
-	};
-	END = BUFFER.size - i;
+	(block_getSource(BUFFER)[INDEX] != ' ') && (block_getSource(BUFFER)[INDEX] != '\t') && (block_getSource(BUFFER)[INDEX] != '\v') && (block_getSource(BUFFER)[INDEX] != '\f') && (block_getSource(BUFFER)[INDEX] != '\r') && (block_getSource(BUFFER)[INDEX] != '\n')
 };
 
-#alias string_isSpace(BUFFER,INDEX)
+#alias char_isLetter(BUFFER,INDEX)
 {
-	(BUFFER.start[INDEX] == ' ') || (BUFFER.start[INDEX] == '\t') || (BUFFER.start[INDEX] == '\v') || (BUFFER.start[INDEX] == '\f') || (BUFFER.start[INDEX] == '\r') || (BUFFER.start[INDEX] == '\n')
+	((block_getSource(BUFFER)[INDEX] >= 97) && (block_getSource(BUFFER)[INDEX] <= 122)) || ((block_getSource(BUFFER)[INDEX] >= 65) && (block_getSource(BUFFER)[INDEX] <= 90))
 };
 
-#alias string_isLetter(BUFFER,INDEX)
+#alias char_isNotLetter(BUFFER,INDEX)
 {
-	((BUFFER.start[INDEX] >= 97) && (BUFFER.start[INDEX] <= 122)) || ((BUFFER.start[INDEX] >= 65) && (BUFFER.start[INDEX] <= 90))
+	!((block_getSource(BUFFER)[INDEX] >= 97) && (block_getSource(BUFFER)[INDEX] <= 122)) && !((block_getSource(BUFFER)[INDEX] >= 65) && (block_getSource(BUFFER)[INDEX] <= 90))
 };
 
-#alias string_isLower(BUFFER,INDEX)
+#alias char_isLowerCase(BUFFER,INDEX)
 {
-	(BUFFER.start[INDEX] >= 97) && (BUFFER.start[INDEX] <= 122)
+	(block_getSource(BUFFER)[INDEX] >= 97) && (block_getSource(BUFFER)[INDEX] <= 122)
 };
 
-#alias string_isUpper(BUFFER,INDEX)
+#alias char_isUpperCase(BUFFER,INDEX)
 {
-	(BUFFER.start[INDEX] >= 65) && (BUFFER.start[INDEX] <= 90)
+	(block_getSource(BUFFER)[INDEX] >= 65) && (block_getSource(BUFFER)[INDEX] <= 90)
 };
 
-#macro string_toLower(BUFFER,INDEX)
+#macro char_toLowerCase(BUFFER,INDEX)
 {
-	BUFFER.start[INDEX] += 32;
+	block_getSource(BUFFER)[INDEX] += 32;
 };
 
-#macro string_toUpper(BUFFER,INDEX)
+#macro char_toUpperCase(BUFFER,INDEX)
 {
-	BUFFER.start[INDEX] -= 32;
+	block_getSource(BUFFER)[INDEX] -= 32;
 };
 
-#macro string_toLowerCase(BUFFER)
-{
-	for (DKusize i = 0; i < BUFFER.size; ++i)
-	{
-		if (string_isUpper(BUFFER,i)) string_toLower(BUFFER,i);
-	};
-};
-
-#macro string_toUpperCase(BUFFER)
-{
-	for (DKusize i = 0; i < BUFFER.size; ++i)
-	{
-		if (string_isLower(BUFFER,i)) string_toUpper(BUFFER,i);
-	};
-};
-
-#macro string_toConditionalCase(BUFFER,INDEX,CASE)
+#macro char_toConditionedCase(BUFFER,INDEX,CASE)
 {
 	if (CASE)
 	{
-		if (string_isLower(BUFFER,INDEX)) string_toUpper(BUFFER,INDEX);
+		if (char_isLowerCase(BUFFER,INDEX)) char_toUpperCase(BUFFER,INDEX);
 	}
-	else if (string_isUpper(BUFFER,INDEX)) string_toLower(BUFFER,INDEX);
+	else if (char_isUpperCase(BUFFER,INDEX)) char_toLowerCase(BUFFER,INDEX);
 };
 
-#macro string_removeSpace(BUFFER,INDEX,END)
+#macro string_calculateLeadingSpace(BUFFER,INDEX)
 {
 	#local DKusize i;
-	for (i = 0; INDEX + i < END; ++i)
+	for (i = 0; i < block_getSize(BUFFER); ++i)
 	{
-		if (!string_isSpace(BUFFER,INDEX + i)) break;
+		if (char_isNotSpace(BUFFER,i)) break;
 	};
-	if (i > 0)
+	INDEX = i;
+};
+
+#macro string_calculateTrailingSpace(BUFFER,INDEX)
+{
+	#local DKusize i;
+	for (i = 0; i < block_getSize(BUFFER); ++i)
 	{
-		buffer_remove(BUFFER,DKcharacter,INDEX,i);
-		END -= i;
+		if (char_isNotSpace(BUFFER,(block_getSize(BUFFER) - 1) - i)) break;
+	};
+	INDEX = block_getSize(BUFFER) - i;
+};
+
+#macro string_removeSpace(BUFFER,START,END)
+{
+	#local DKusize size;
+	for (size = 0; START + size < END; ++size)
+	{
+		if (char_isNotSpace(BUFFER,START + size)) break;
+	};
+	if (size > 0)
+	{
+		buffer_remove(BUFFER,DKcharacter,START,size);
+		END -= size;
 	};
 };
 
@@ -92,50 +86,105 @@
 	#local DKboolean case;
 	#local DKusize start;
 	#local DKusize end;
-	case = !case;
-	string_calculateStartSpace(BUFFER,start);
-	string_calculateEndSpace(BUFFER,end);
-	string_toConditionalCase(BUFFER,start,CASE);
-	for (++start; start < end; ++start)
+	string_calculateLeadingSpace(BUFFER,start);
+	if (start < block_getSize(BUFFER))
 	{
-		if (string_isSpace(BUFFER,start))
+		string_calculateTrailingSpace(BUFFER,end);
+		char_toConditionedCase(BUFFER,start,CASE);
+		case = !case;
+		for (++start; start < end; ++start)
 		{
-			string_removeSpace(BUFFER,start,end);
-			if (start < end)
+			if (char_isSpace(BUFFER,start))
 			{
-				string_toConditionalCase(BUFFER,start,case);
+				string_removeSpace(BUFFER,start,end);
+				char_toConditionedCase(BUFFER,start,case);
 				case = !case;
 			};
 		};
 	};
 };
 
-// if (CASE)
-// {
-// 	if (string_isLower(BUFFER,start)) string_toUpper(BUFFER,start);
-// }
-// else if (string_isUpper(BUFFER,start)) string_toLower(BUFFER,start);
-
-// if (case)
-// {
-// 	if (string_isLower(BUFFER,i)) string_toUpper(BUFFER,i);
-// }
-// else if (string_isUpper(BUFFER,i)) string_toLower(BUFFER,i);
-
-#macro string_replaceSpace(BUFFER,CHARACTER)
+#macro string_replaceAllSpace(BUFFER,CHARACTER)
 {
 	#local DKusize start;
 	#local DKusize end;
-	string_calculateStartSpace(BUFFER,start);
-	string_calculateEndSpace(BUFFER,end);
+	string_calculateLeadingSpace(BUFFER,start);
+	string_calculateTrailingSpace(BUFFER,end);
 	for (; start < end; ++start)
 	{
-		if (string_isSpace(BUFFER,start))
+		if (char_isSpace(BUFFER,start))
 		{
-			BUFFER.start[start] = CHARACTER;
+			block_getSource(BUFFER)[start] = CHARACTER;
 			string_removeSpace(BUFFER,start + 1,end);
 		};
 	};
+};
+
+#macro string_toLowerCase(BUFFER)
+{
+	for (DKusize i = 0; i < block_getSize(BUFFER); ++i)
+	{
+		if (char_isUpperCase(BUFFER,i)) char_toLowerCase(BUFFER,i);
+	};
+};
+
+#macro string_toUpperCase(BUFFER)
+{
+	for (DKusize i = 0; i < block_getSize(BUFFER); ++i)
+	{
+		if (char_isLowerCase(BUFFER,i)) char_toUpperCase(BUFFER,i);
+	};
+};
+
+#macro string_trimStart(BUFFER)
+{
+	#local DKusize start;
+	string_calculateLeadingSpace(BUFFER,start);
+	if (start > 0) buffer_remove(BUFFER,DKcharacter,0,start);
+};
+
+#macro string_trimEnd(BUFFER)
+{
+	#local DKusize end;
+	string_calculateTrailingSpace(BUFFER,end);
+	if (end < block_getSize(BUFFER)) buffer_remove(BUFFER,DKcharacter,end,block_getSize(BUFFER) - end);
+};
+
+DKcharacter dkString_getCode(DKstring *STRING,DKssize INDEX)
+{
+	DKusize index;
+	safe_start(STRING);
+	block_calculateSafePosition(INDEX,block_getSize(STRING->block),index);
+	error_bypassReturn();
+	DKcharacter code = block_getSource(STRING->block)[index];
+	safe_endReturn(STRING,code);
+};
+
+DKnullString dkString_getCharacter(DKstring *STRING,DKssize INDEX)
+{
+	DKnullString character;
+	DKusize index;
+	safe_start(STRING);
+	block_calculateSafePosition(INDEX,block_getSize(STRING->block),index);
+	error_bypassReturn();
+	if (!(character = malloc(2))) error_throwReturn("MEMORY: malloc");
+	character[0] = block_getSource(STRING->block)[index];
+	character[1] = '\0';
+	safe_endReturn(STRING,character);
+};
+
+DKnullString dkString_getNullString(DKstring *STRING,DKssize START,DKssize END)
+{
+	DKnullString nullString;
+	DKusize index;
+	DKusize length;
+	safe_start(STRING);
+	block_calculateRange(START,END,block_getSize(STRING->block),index,length);
+	error_bypassReturn();
+	if (!(nullString = malloc(length + 1))) error_throwReturn("MEMORY: malloc");
+	memcpy(nullString,block_getSource(STRING->block) + index,length);
+	nullString[length] = '\0';
+	safe_endReturn(STRING,nullString);
 };
 
 void dkString_toLowerCase(DKstring *STRING)
@@ -155,37 +204,29 @@ void dkString_toUpperCase(DKstring *STRING)
 void dkString_toProperCase(DKstring *STRING)
 {
 	safe_start(STRING);
-	if (string_isLower(STRING->block,0)) string_toUpper(STRING->block,0);
-	for (DKusize i = 1; i < (STRING->block).size; ++i)
+	if (block_isNotEmpty(STRING->block))
 	{
-		string_toConditionalCase(STRING->block,i,!string_isLetter(STRING->block,i - 1));
-		// if (!string_isLetter(STRING->block,i - 1))
-		// {
-		// 	if (string_isLower(STRING->block,i)) string_toUpper(STRING->block,i);
-		// }
-		// else if (string_isUpper(STRING->block,i)) string_toLower(STRING->block,i);
+		if (char_isLowerCase(STRING->block,0)) char_toUpperCase(STRING->block,0);
+		for (DKusize i = 1; i < block_getSize(STRING->block); ++i) char_toConditionedCase(STRING->block,i,char_isSpace(STRING->block,i - 1));
 	};
 	safe_end(STRING);
 };
 
-void dkString_invertCase(DKstring *STRING)
+void dkString_toInvertedCase(DKstring *STRING)
 {
 	safe_start(STRING);
-	for (DKusize i = 0; i < (STRING->block).size; ++i)
+	for (DKusize i = 0; i < block_getSize(STRING->block); ++i)
 	{
-		if (string_isUpper(STRING->block,i)) string_toLower(STRING->block,i)
-		else if (string_isLower(STRING->block,i)) string_toUpper(STRING->block,i);
+		if (char_isUpperCase(STRING->block,i)) char_toLowerCase(STRING->block,i)
+		else if (char_isLowerCase(STRING->block,i)) char_toUpperCase(STRING->block,i);
 	};
 	safe_end(STRING);
 };
 
-void dkString_alternateCase(DKstring *STRING)
+void dkString_toAlternatedCase(DKstring *STRING)
 {
 	safe_start(STRING);
-	for (DKusize i = 0; i < (STRING->block).size; ++i)
-	{
-		string_toConditionalCase(STRING->block,i,i % 2);
-	};
+	for (DKusize i = 0; i < block_getSize(STRING->block); ++i) char_toConditionedCase(STRING->block,i,i % 2);
 	safe_end(STRING);
 };
 
@@ -193,10 +234,7 @@ void dkString_toRandomCase(DKstring *STRING)
 {
 	safe_start(STRING);
 	srand(time(0));
-	for (DKusize i = 0; i < (STRING->block).size; ++i)
-	{
-		string_toConditionalCase(STRING->block,i,rand() % 2);
-	};
+	for (DKusize i = 0; i < block_getSize(STRING->block); ++i) char_toConditionedCase(STRING->block,i,rand() % 2);
 	safe_end(STRING);
 };
 
@@ -204,7 +242,7 @@ void dkString_toLowerSnakeCase(DKstring *STRING)
 {
 	safe_start(STRING);
 	string_toLowerCase(STRING->block);
-	string_replaceSpace(STRING->block,'_');
+	string_replaceAllSpace(STRING->block,'_');
 	safe_end(STRING);
 };
 
@@ -212,7 +250,7 @@ void dkString_toUpperSnakeCase(DKstring *STRING)
 {
 	safe_start(STRING);
 	string_toUpperCase(STRING->block);
-	string_replaceSpace(STRING->block,'_');
+	string_replaceAllSpace(STRING->block,'_');
 	safe_end(STRING);
 };
 
@@ -220,7 +258,7 @@ void dkString_toLowerKebabCase(DKstring *STRING)
 {
 	safe_start(STRING);
 	string_toLowerCase(STRING->block);
-	string_replaceSpace(STRING->block,'-');
+	string_replaceAllSpace(STRING->block,'-');
 	safe_end(STRING);
 };
 
@@ -228,7 +266,7 @@ void dkString_toUpperKebabCase(DKstring *STRING)
 {
 	safe_start(STRING);
 	string_toUpperCase(STRING->block);
-	string_replaceSpace(STRING->block,'-');
+	string_replaceAllSpace(STRING->block,'-');
 	safe_end(STRING);
 };
 
@@ -248,20 +286,6 @@ void dkString_toPascalCase(DKstring *STRING)
 	safe_end(STRING);
 };
 
-#macro string_trimStart(BUFFER)
-{
-	#local DKusize start;
-	string_calculateStartSpace(BUFFER,start);
-	if (start > 0) buffer_remove(BUFFER,DKcharacter,0,start);
-};
-
-#macro string_trimEnd(BUFFER)
-{
-	#local DKusize end;
-	string_calculateEndSpace(BUFFER,end);
-	if (end < BUFFER.size) buffer_remove(BUFFER,DKcharacter,end,BUFFER.size - end);
-};
-
 void dkString_trimStart(DKstring *STRING)
 {
 	safe_start(STRING);
@@ -273,12 +297,14 @@ void dkString_trimInner(DKstring *STRING)
 {
 	DKusize start;
 	DKusize end;
-	string_calculateStartSpace(STRING->block,start);
-	string_calculateEndSpace(STRING->block,end);
+	safe_start(STRING);
+	string_calculateLeadingSpace(STRING->block,start);
+	string_calculateTrailingSpace(STRING->block,end);
 	for (; start < end; ++start)
 	{
-		if (string_isSpace(STRING->block,start)) string_removeSpace(STRING->block,start,end);
+		if (char_isSpace(STRING->block,start)) string_removeSpace(STRING->block,start,end);
 	};
+	safe_end(STRING);
 };
 
 void dkString_trimEnd(DKstring *STRING)
