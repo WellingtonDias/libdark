@@ -28,8 +28,8 @@ DKstring *dkString_createFromCopy(DKstring *STRING,DKssize START,DKssize END)
 {
 	DKstring *string;
 	safe_start(STRING);
-	struct_createFromMemory(DKstring,DKcharacter,block_getSource(STRING->block),block_getSize(STRING->block),START,END,string);
-	safe_endReturn(STRING,string);
+	struct_createFromMemory(DKstring,DKcharacter,block_getSource(STRING->block),block_getLength(STRING->block),START,END,string);
+	safe_endReturnValue(STRING,string);
 };
 
 DKstring *dkString_destroy(DKstring *STRING)

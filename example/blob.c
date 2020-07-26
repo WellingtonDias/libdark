@@ -13,7 +13,7 @@ void independent(void)
 	dkBlob_debug(blob1,"create");
 
 	DKu8 source[5] = {0,1,2,3,4};
-	DKblob *blob2 = dkBlob_createFromMemory(&source,5,1,-2,DARK_BLOB_SYSTEM_ENDIAN);
+	DKblob *blob2 = dkBlob_createFromMemory((DKu8*) &source,5,1,-2,DARK_BLOB_SYSTEM_ENDIAN);
 	dkBlob_debug(blob2,"createFromMemory");
 
 	DKblob *blob3 = dkBlob_createFromCopy(blob2,1,-2);
@@ -42,7 +42,9 @@ void single()
 	DKblob *blob = dkBlob_create(DARK_BLOB_SYSTEM_ENDIAN);
 	dkBlob_setLock(blob,true);
 	dkBlob_writeAt(blob,2684354560,Source,256);
+
 	clock_t time = clock();
+
 	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_write(blob,Source,256);
 	dkBlob_resetOffset(blob);
 	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_write(blob,Source,256);
@@ -66,13 +68,16 @@ void single()
 	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_write(blob,Source,256);
 	dkBlob_resetOffset(blob);
 	for (DKusize i = 0; i < 10 * 1024 * 1024; ++i) dkBlob_write(blob,Source,256);
+
 	printf("SINGLE-THREAD TIME: %lf\n",(DKf64) (clock() - time) / CLOCKS_PER_SEC);
+
 	blob = dkBlob_destroy(blob);
 };
 
 int multi(void *arguments)
 {
 	clock_t time = clock();
+
 	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_write(Blob,Source,256);
 	dkBlob_resetOffset(Blob);
 	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_write(Blob,Source,256);
@@ -97,19 +102,22 @@ int multi(void *arguments)
 	dkBlob_resetOffset(Blob);
 	for (DKusize i = 0; i < 1024 * 1024; ++i) dkBlob_write(Blob,Source,256);
 	dkBlob_resetOffset(Blob);
+
 	printf("MULTI-THREAD  TIME: %lf\n",(DKf64) (clock() - time) / CLOCKS_PER_SEC);
+
 	return EXIT_SUCCESS;
 };
 
 int main(void)
 {
 	thrd_t list[10];
-	independent();
+
 	Source = malloc(256);
 	Blob = dkBlob_create(DARK_BLOB_SYSTEM_ENDIAN);
-	dkBlob_debug(Blob,"create");
 	dkBlob_setLock(Blob,true);
 	dkBlob_writeAt(Blob,2684354560,Source,256);
+
+	independent();
 	single();
 	for (DKusize i = 0; i < 10; ++i)
 	{
@@ -117,7 +125,9 @@ int main(void)
 	};
 	single();
 	while (true) ;
+
 	free(Source);
 	Blob = dkBlob_destroy(Blob);
+
 	return EXIT_SUCCESS;
 };

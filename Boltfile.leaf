@@ -13,16 +13,16 @@
 	{
 		c =
 		[
-			"gcc -std=c11 -Wall -Wextra -Wno-address -Wno-maybe-uninitialized -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'",
+			"gcc -std=c11 -Wall -Wextra -Wno-address -Wno-maybe-uninitialized -Wno-unused-variable -Wno-unused-but-set-variable -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'",
 			"ar rc './output/libdark.a' './output/DARK.o'",
 			"gcc -std=c11 -Wall -Wextra -shared -fPIC -o './output/libdark.so' './output/DARK.o'"
 		],
 		example =
 		[
 			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/string' './example/string.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/blob' './example/blob.c' -I './output/' -L './output/' -l:libdark.a -lpthread"#,
-			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/ordinal' './example/ordinal.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/nominal' './example/nominal.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/blob' './example/blob.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/ordinal' './example/ordinal.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/nominal' './example/nominal.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
 		]
 	},
 	git-commit = "",
@@ -49,9 +49,9 @@
 				["./source/system/",["error","unsafe","safe"],".c"],
 				["./source/core/",["types","block","buffer","stream","mutex","struct"],".c"],
 				["./source/string/",["header","creation","structOperations","dataOperations","properties"],".c"],
-				["./source/blob/",["header","creation","structOperations","dataOperations","properties"],".c"]#,
-				# ["./source/ordinal/",["header","creation","structOperations","dataOperations","properties"],".c"],
-				# ["./source/nominal/",["header","creation","structOperations","dataOperations","properties"],".c"]
+				["./source/blob/",["header","creation","structOperations","dataOperations","properties"],".c"],
+				["./source/ordinal/",["header","creation","structOperations","dataOperations","properties"],".c"],
+				["./source/nominal/",["header","creation","structOperations","dataOperations","properties"],".c"]
 			],
 			output = "./output/DARK.c"
 		}

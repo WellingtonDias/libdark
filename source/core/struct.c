@@ -10,10 +10,10 @@
 	block_createFromNothing(STRUCT->block,BLOCK_TYPE);
 };
 
-#macro struct_createFromMemory(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,SIZE,START,END,STRUCT)
+#macro struct_createFromMemory(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,LENGTH,START,END,STRUCT)
 {
 	struct_create(STRUCT_TYPE,STRUCT);
-	block_createFromMemory(STRUCT->block,BLOCK_TYPE,SOURCE,SIZE,START,END);
+	block_createFromMemory(STRUCT->block,BLOCK_TYPE,SOURCE,LENGTH,START,END);
 };
 
 #macro struct_destroy(STRUCT)

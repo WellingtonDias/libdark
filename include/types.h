@@ -69,12 +69,6 @@ typedef union
 	DKordinal *ordinal;
 	DKnominal *nominal;
 	DKpointer pointer;
-} DKhandleUnion;
-
-typedef struct
-{
-	DKu8 type;
-	DKhandleUnion source;
-} DKhandleStruct;
+} DKvalue;
 
 DKnullString boolean_toString[2];

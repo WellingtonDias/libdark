@@ -2,7 +2,7 @@ void dkString_saveToFile(DKstring *STRING,DKssize START,DKssize END,DKnullString
 {
 	safe_start(STRING);
 	buffer_saveToFile(STRING->block,START,END,FILE_NAME,"w");
-	safe_end(STRING);
+	safe_endExit(STRING);
 };
 
 void dkString_merge(DKstring *STRING,DKssize INDEX,DKstring *SOURCE,DKssize START,DKssize END)
@@ -11,14 +11,14 @@ void dkString_merge(DKstring *STRING,DKssize INDEX,DKstring *SOURCE,DKssize STAR
 	mutex_lock(SOURCE->mutex);
 	block_merge(STRING->block,DKcharacter,INDEX,SOURCE->block,START,END);
 	mutex_unlock(SOURCE->mutex);
-	safe_end(STRING);
+	safe_endExit(STRING);
 };
 
 void dkString_clear(DKstring *STRING)
 {
 	safe_start(STRING);
 	block_clear(STRING->block,DKcharacter);
-	safe_end(STRING);
+	safe_endExit(STRING);
 };
 
 DKboolean dkString_compare(DKstring *STRING1,DKstring *STRING2)
@@ -27,5 +27,5 @@ DKboolean dkString_compare(DKstring *STRING1,DKstring *STRING2)
 	mutex_lock(STRING2->mutex);
 	DKboolean comparison = block_compare(STRING1->block,STRING2->block,DKcharacter);
 	mutex_unlock(STRING2->mutex);
-	safe_endReturn(STRING1,comparison);
+	safe_endReturnValue(STRING1,comparison);
 };

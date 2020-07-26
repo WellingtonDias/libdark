@@ -6,14 +6,14 @@ thread_local DKboolean ErrorUnsafe;
 	if (!ErrorUnsafe) dkError_throw(ErrorMessage);
 };
 
-#macro error_set(MESSAGE)
+#macro error_throwBreak(MESSAGE)
 {
 	ErrorMessage = MESSAGE;
 	error_safeThrow();
 	break;
 };
 
-#macro error_throw(MESSAGE)
+#macro error_throwExit(MESSAGE)
 {
 	ErrorMessage = MESSAGE;
 	error_safeThrow();
@@ -27,11 +27,18 @@ thread_local DKboolean ErrorUnsafe;
 	return 0;
 };
 
-#macro error_throwCastReturn(MESSAGE,#TYPE)
+#macro error_throwReturnCast(MESSAGE,#TYPE)
 {
 	ErrorMessage = MESSAGE;
 	error_safeThrow();
 	return (TYPE) 0;
+};
+
+#macro error_throwReturnValue(MESSAGE,VALUE)
+{
+	ErrorMessage = MESSAGE;
+	error_safeThrow();
+	return VALUE;
 };
 
 #macro error_throwUnhandled()
@@ -39,7 +46,12 @@ thread_local DKboolean ErrorUnsafe;
 	if (ErrorMessage) dkError_throw("Unhandled error found");
 };
 
-#macro error_bypass()
+#macro error_bypassBreak()
+{
+	if (ErrorMessage) break;
+};
+
+#macro error_bypassExit()
 {
 	if (ErrorMessage) return;
 };
@@ -49,9 +61,14 @@ thread_local DKboolean ErrorUnsafe;
 	if (ErrorMessage) return 0;
 };
 
-#macro error_bypassCastReturn(#TYPE)
+#macro error_bypassReturnCast(#TYPE)
 {
 	if (ErrorMessage) return (TYPE) 0;
+};
+
+#macro error_bypassReturnValue(VALUE)
+{
+	if (ErrorMessage) return VALUE;
 };
 
 void dkError_start(void)

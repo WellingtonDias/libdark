@@ -8,11 +8,11 @@ DKblob *dkBlob_create(DKu8 ENDIAN)
 	return blob;
 };
 
-DKblob *dkBlob_createFromMemory(DKu8 *SOURCE,DKusize SIZE,DKssize START,DKssize END,DKu8 ENDIAN)
+DKblob *dkBlob_createFromMemory(DKu8 *SOURCE,DKusize LENGTH,DKssize START,DKssize END,DKu8 ENDIAN)
 {
 	DKblob *blob;
 	unsafe_start();
-	struct_createFromMemory(DKblob,DKu8,SOURCE,SIZE,START,END,blob);
+	struct_createFromMemory(DKblob,DKu8,SOURCE,LENGTH,START,END,blob);
 	blob_calculateEndian(ENDIAN,blob->endian);
 	blob->offset = 0;
 	return blob;
@@ -33,10 +33,10 @@ DKblob *dkBlob_createFromCopy(DKblob *BLOB,DKssize START,DKssize END)
 {
 	DKblob *blob;
 	safe_start(BLOB);
-	struct_createFromMemory(DKblob,DKu8,block_getSource(BLOB->block),block_getSize(BLOB->block),START,END,blob);
+	struct_createFromMemory(DKblob,DKu8,block_getSource(BLOB->block),block_getLength(BLOB->block),START,END,blob);
 	blob->endian = BLOB->endian;
 	blob->offset = 0;
-	safe_endReturn(BLOB,blob);
+	safe_endReturnValue(BLOB,blob);
 };
 
 DKblob *dkBlob_destroy(DKblob *BLOB)

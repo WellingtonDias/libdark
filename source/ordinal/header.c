@@ -1,16 +1,16 @@
-block_define(DKblock_handle,DKhandleUnion);
+block_define(DKblock_value,DKvalue);
 
 struct _ordinal
 {
-	DKblock_handle block;
+	DKblock_value block;
 	DKmutex mutex;
 };
 
 void dkOrdinal_debug(DKordinal *ORDINAL,DKnullString LABEL)
 {
 	safe_start(ORDINAL);
-	printf("ORDINAL { size: %lli,capacity: %lli,source: [",(ORDINAL->block).size,(ORDINAL->block).capacity);
-	for (DKusize i = 0; i < (ORDINAL->block).size; ++i) printf("%lli ",(ORDINAL->block).start[i].usize);
+	printf("ORDINAL { length: %lli, source: [ ",block_getLength(ORDINAL->block));
+	for (DKusize i = 0; i < block_getLength(ORDINAL->block); ++i) printf("%lli ",block_getSource(ORDINAL->block)[i].usize);
 	printf("] } #%s\n",LABEL);
-	safe_end(ORDINAL);
+	safe_endExit(ORDINAL);
 };

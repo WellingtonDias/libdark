@@ -1,6 +1,6 @@
 // String
 DKstring *dkString_create(void);
-DKstring *dkString_createFromMemory(DKnullString SOURCE,DKusize SIZE,DKssize START,DKssize END);
+DKstring *dkString_createFromMemory(DKnullString SOURCE,DKusize LENGTH,DKssize START,DKssize END);
 DKstring *dkString_createFromFile(DKnullString FILE_NAME,DKssize START,DKssize END);
 DKstring *dkString_createFromCopy(DKstring *STRING,DKssize START,DKssize END);
 DKstring *dkString_destroy(DKstring *STRING);
@@ -28,6 +28,7 @@ DKstring *dkString_destroy(DKstring *STRING);
 		void dkString_trimEnd(DKstring *STRING);
 		void dkString_trimOuter(DKstring *STRING);
 			DKrawString dkString_getSource(DKstring *STRING);
+			DKusize dkString_setLength(DKstring *STRING,DKusize LENGTH);
 			DKusize dkString_getLength(DKstring *STRING);
 			DKboolean dkString_isEmpty(DKstring *STRING);
 			DKboolean dkString_isNotEmpty(DKstring *STRING);
