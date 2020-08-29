@@ -1,85 +1,95 @@
 thread_local DKnullString ErrorMessage;
-thread_local DKboolean ErrorUnsafe;
+thread_local DKusize ErrorBlock;
 
-#macro error_safeThrow()
-{
-	if (!ErrorUnsafe) dkError_throw(ErrorMessage);
-};
-
-#macro error_throwBreak(MESSAGE)
+#routine error_set(MESSAGE)
 {
 	ErrorMessage = MESSAGE;
-	error_safeThrow();
+};
+
+#macro error_get()
+{
+	ErrorMessage
+};
+
+#routine error_throw()
+{
+	if (!ErrorBlock) dkError_throw(ErrorMessage);
+};
+
+#routine error_throwBreak(MESSAGE)
+{
+	ErrorMessage = MESSAGE;
+	error_throw();
 	break;
 };
 
-#macro error_throwExit(MESSAGE)
+#routine error_throwExit(MESSAGE)
 {
 	ErrorMessage = MESSAGE;
-	error_safeThrow();
+	error_throw();
 	return;
 };
 
-#macro error_throwReturn(MESSAGE)
+#routine error_throwReturn(MESSAGE)
 {
 	ErrorMessage = MESSAGE;
-	error_safeThrow();
+	error_throw();
 	return 0;
 };
 
-#macro error_throwReturnCast(MESSAGE,#TYPE)
+#routine error_throwReturnCast(MESSAGE,#TYPE)
 {
 	ErrorMessage = MESSAGE;
-	error_safeThrow();
+	error_throw();
 	return (TYPE) 0;
 };
 
-#macro error_throwReturnValue(MESSAGE,VALUE)
+#routine error_throwReturnValue(MESSAGE,VALUE)
 {
 	ErrorMessage = MESSAGE;
-	error_safeThrow();
+	error_throw();
 	return VALUE;
 };
 
-#macro error_throwUnhandled()
+#routine error_throwUnhandled()
 {
 	if (ErrorMessage) dkError_throw("Unhandled error found");
 };
 
-#macro error_bypassBreak()
+#routine error_bypassBreak()
 {
 	if (ErrorMessage) break;
 };
 
-#macro error_bypassExit()
+#routine error_bypassExit()
 {
 	if (ErrorMessage) return;
 };
 
-#macro error_bypassReturn()
+#routine error_bypassReturn()
 {
 	if (ErrorMessage) return 0;
 };
 
-#macro error_bypassReturnCast(#TYPE)
+#routine error_bypassReturnCast(#TYPE)
 {
 	if (ErrorMessage) return (TYPE) 0;
 };
 
-#macro error_bypassReturnValue(VALUE)
+#routine error_bypassReturnValue(VALUE)
 {
 	if (ErrorMessage) return VALUE;
 };
 
 void dkError_start(void)
 {
-	ErrorUnsafe += 1;
+	ErrorBlock += 1;
 };
 
 void dkError_end(void)
 {
-	if (!ErrorUnsafe) dkError_throw("There is no unsafe zone to end");
-	ErrorUnsafe -= 1;
+	if (!ErrorBlock) dkError_throw("There is no error zone to end");
+	ErrorBlock -= 1;
 };
 
 DKnullString dkError_catch(void)

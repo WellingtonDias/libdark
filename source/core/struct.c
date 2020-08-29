@@ -1,24 +1,35 @@
-#macro struct_create(#TYPE,STRUCT)
+#routine struct_allocate(#TYPE,STRUCT)
 {
-	if (!(STRUCT = malloc(sizeof(TYPE)))) error_throwReturn("MEMORY: malloc");
-	mutex_update(STRUCT->mutex,NULL);
+	if (!(STRUCT = calloc(1,sizeof(TYPE)))) error_throwBreak("MEMORY: calloc");
 };
 
-#macro struct_createFromNothing(#STRUCT_TYPE,#BLOCK_TYPE,STRUCT)
+#routine struct_create(#STRUCT_TYPE,#BLOCK_TYPE,STRUCT)
 {
-	struct_create(STRUCT_TYPE,STRUCT);
-	block_createFromNothing(STRUCT->block,BLOCK_TYPE);
+	struct_allocate(STRUCT_TYPE,STRUCT);
+	block_create(BLOCK_TYPE,STRUCT->block);
 };
 
-#macro struct_createFromMemory(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,LENGTH,START,END,STRUCT)
+#routine struct_createFromPointer(#STRUCT_TYPE,#BLOCK_TYPE,ADDRESS,SIZE,STRUCT)
 {
-	struct_create(STRUCT_TYPE,STRUCT);
-	block_createFromMemory(STRUCT->block,BLOCK_TYPE,SOURCE,LENGTH,START,END);
+	struct_allocate(STRUCT_TYPE,STRUCT);
+	block_createFromPointer(BLOCK_TYPE,STRUCT->block,ADDRESS,SIZE);
 };
 
-#macro struct_destroy(STRUCT)
+#routine struct_createFromMemory(#STRUCT_TYPE,#BLOCK_TYPE,ADDRESS,SIZE,START,END,STRUCT)
 {
-	block_destroy(STRUCT->block);
+	struct_allocate(STRUCT_TYPE,STRUCT);
+	block_createFromMemory(BLOCK_TYPE,STRUCT->block,ADDRESS,SIZE,START,END);
+};
+
+#routine struct_createFromCopy(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,START,END,STRUCT)
+{
+	struct_allocate(STRUCT_TYPE,STRUCT);
+	block_createFromMemory(BLOCK_TYPE,STRUCT->block,block_getStart(SOURCE->block),block_getSize(SOURCE->block),START,END);
+};
+
+#routine struct_destroy(STRUCT,SOURCE)
+{
+	if (SOURCE) block_destroy(STRUCT->block);
 	mutex_destroy(STRUCT->mutex);
 	free(STRUCT);
 };
