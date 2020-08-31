@@ -30,29 +30,12 @@
 	{
 		header =
 		{
-			input =
-			[
-				"./include/types.h",
-				"./include/error.h",
-				# "./include/string.h",
-				# "./include/blob.h",
-				"./include/list.h"#,
-				# "./include/map.h"
-			],
+			input = [["./include/",["types","exception","pointer","list"],".h"]],
 			output = "./output/DARK.h"
 		},
 		source =
 		{
-			input =
-			[
-				"./source/header.c",
-				["./source/system/",["error","safe"],".c"],
-				["./source/core/",["block","mutex","struct"],".c"],
-				# ["./source/string/",["header","creation","structOperations","dataOperations","properties"],".c"],
-				# ["./source/blob/",["header","creation","structOperations","dataOperations","properties"],".c"],
-				["./source/list/",["header","creation","structOperations","dataOperations","properties"],".c"]#,
-				# ["./source/map/",["header","creation","structOperations","dataOperations","properties"],".c"]
-			],
+			input = [["./source/",["header","exception","safe","pointer","block","mutex","struct","list"],".c"]],
 			output = "./output/DARK.c"
 		}
 	},

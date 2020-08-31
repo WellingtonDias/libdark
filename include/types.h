@@ -21,58 +21,61 @@
 #define DARK_BLOB        18
 #define DARK_LIST        19
 #define DARK_MAP         20
-#define DARK_POINTER     21
+#define DARK_RAW_POINTER 21
+#define DARK_POINTER     22
 
-#define DKboolean    bool
-#define DKu8         unsigned char
-#define DKs8         signed char
-#define DKu16        unsigned short
-#define DKs16        signed short
-#define DKu32        unsigned int
-#define DKs32        signed int
-#define DKu64        unsigned long long
-#define DKs64        signed long long
-#define DKusize      unsigned long long
-#define DKssize      signed long long
-#define DKf32        float
-#define DKf64        double
-#define DKcharacter  char
-#define DKnullString char*
-#define DKrawString  char*
-#define DKpointer    void*
+#define Boolean      bool
+#define Unsigned8    unsigned char
+#define Signed8      signed char
+#define Unsigned16   unsigned short
+#define Signed16     signed short
+#define Unsigned32   unsigned int
+#define Signed32     signed int
+#define Unsigned64   unsigned long long
+#define Signed64     signed long long
+#define UnsignedSize unsigned long long
+#define SignedSize   signed long long
+#define Float32      float
+#define Float64      double
+#define Character    char
+#define NullString   char*
+#define RawString    char*
+#define RawPointer   void*
 
-typedef struct _string DKstring;
-typedef struct _blob   DKblob;
-typedef struct _list   DKlist;
-typedef struct _map    DKmap;
+typedef struct _String  String;
+typedef struct _Blob    Blob;
+typedef struct _List    List;
+typedef struct _Map     Map;
+typedef struct _Pointer Pointer;
 
 typedef union
 {
-	DKboolean    boolean;
-	DKu8         u8;
-	DKs8         s8;
-	DKu16        u16;
-	DKs16        s16;
-	DKu32        u32;
-	DKs32        s32;
-	DKu64        u64;
-	DKs64        s64;
-	DKusize      usize;
-	DKssize      ssize;
-	DKf32        f32;
-	DKf64        f64;
-	DKcharacter  character;
-	DKnullString nullString;
-	DKrawString  rawString;
-	DKstring     *string;
-	DKblob       *blob;
-	DKlist       *list;
-	DKmap        *map;
-	DKpointer    pointer;
-} DKundefined;
+	Boolean      boolean;
+	Unsigned8    u8;
+	Signed8      s8;
+	Unsigned16   u16;
+	Signed16     s16;
+	Unsigned32   u32;
+	Signed32     s32;
+	Unsigned64   u64;
+	Signed64     s64;
+	UnsignedSize usize;
+	SignedSize   ssize;
+	Float32      f32;
+	Float64      f64;
+	Character    character;
+	NullString   nullString;
+	RawString    rawString;
+	String*      string;
+	Blob*        blob;
+	List*        list;
+	Map*         map;
+	RawPointer   rawPointer;
+	Pointer*     pointer;
+} Undefined;
 
 typedef struct
 {
-	DKu8        type;
-	DKundefined value;
-} DKdefined;
+	Unsigned8 type;
+	Undefined value;
+} Defined;
