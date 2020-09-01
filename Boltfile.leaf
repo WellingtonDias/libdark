@@ -13,7 +13,7 @@
 	{
 		c =
 		[
-			"gcc -std=c11 -Wall -Wextra -Ofast -Wno-address -Wno-maybe-uninitialized -Wno-unused-variable -Wno-unused-but-set-variable -fPIC -o './output/DARK.o' -c './output/DARK.c'",
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/DARK.o' -c './output/DARK.c'",
 			"ar rc './output/libdark.a' './output/DARK.o'",
 			"gcc -std=c11 -Wall -Wextra -shared -fPIC -o './output/libdark.so' './output/DARK.o'"
 		],
@@ -21,7 +21,7 @@
 		[
 			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/string' './example/string.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
 			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/blob' './example/blob.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/list' './example/list.c' -I './output/' -L './output/' -l:libdark.a -lpthread"#,
+			"gcc -std=c11 -Wall -Wextra -Wno-unused-parameter -Ofast -fPIC -o './output/list' './example/list.c' -I './output/' -L './output/' -l:libdark.a -lpthread"#,
 			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/map' './example/map.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
 		]
 	},
@@ -35,7 +35,7 @@
 		},
 		source =
 		{
-			input = [["./source/",["header","exception","safe","pointer","block","mutex","struct","list"],".c"]],
+			input = [["./source/",["header","exception","pointer","box","mutex","struct","list"],".c"]],
 			output = "./output/DARK.c"
 		}
 	},

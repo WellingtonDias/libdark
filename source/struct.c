@@ -3,45 +3,45 @@
 	if (!(STRUCT = calloc(1,sizeof(TYPE)))) exception_throwBreak("MEMORY: calloc");
 };
 
-#routine struct_create(#STRUCT_TYPE,#BLOCK_TYPE,STRUCT)
+#routine struct_create(#STRUCT_TYPE,#BOX_TYPE,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_create(BLOCK_TYPE,STRUCT->block);
+	box_create(BOX_TYPE,STRUCT->box);
 };
 
-#routine struct_createFromPointer(#STRUCT_TYPE,#BLOCK_TYPE,POINTER,STRUCT)
+#routine struct_createFromPointer(#STRUCT_TYPE,#BOX_TYPE,POINTER,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_createFromPointer(BLOCK_TYPE,STRUCT->block,POINTER);
+	box_createFromPointer(BOX_TYPE,STRUCT->box,POINTER);
 };
 
-#routine struct_createFromMemoryAtInterval(#STRUCT_TYPE,#BLOCK_TYPE,POINTER,INDEX,SIZE,STRUCT)
+#routine struct_createFromMemoryInInterval(#STRUCT_TYPE,#BOX_TYPE,POINTER,INDEX,SIZE,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_createFromMemoryAtInterval(BLOCK_TYPE,STRUCT->block,POINTER,INDEX,SIZE);
+	box_createFromMemoryInInterval(BOX_TYPE,STRUCT->box,POINTER,INDEX,SIZE);
 };
 
-#routine struct_createFromMemoryAtRange(#STRUCT_TYPE,#BLOCK_TYPE,POINTER,START,END,STRUCT)
+#routine struct_createFromMemoryInRange(#STRUCT_TYPE,#BOX_TYPE,POINTER,START,END,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_createFromMemoryAtRange(BLOCK_TYPE,STRUCT->block,POINTER,START,END);
+	box_createFromMemoryInRange(BOX_TYPE,STRUCT->box,POINTER,START,END);
 };
 
-#routine struct_createFromCopyAtInterval(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,INDEX,SIZE,STRUCT)
+#routine struct_createFromCopyInInterval(#STRUCT_TYPE,#BOX_TYPE,SOURCE,INDEX,SIZE,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_createFromCopyAtInterval(BLOCK_TYPE,STRUCT->block,SOURCE->block,INDEX,SIZE);
+	box_createFromCopyInInterval(BOX_TYPE,STRUCT->box,SOURCE->box,INDEX,SIZE);
 };
 
-#routine struct_createFromCopyAtRange(#STRUCT_TYPE,#BLOCK_TYPE,SOURCE,START,END,STRUCT)
+#routine struct_createFromCopyInRange(#STRUCT_TYPE,#BOX_TYPE,SOURCE,START,END,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	block_createFromCopyAtRange(BLOCK_TYPE,STRUCT->block,SOURCE->block,START,END);
+	box_createFromCopyInRange(BOX_TYPE,STRUCT->box,SOURCE->box,START,END);
 };
 
 #routine struct_destroy(STRUCT,SOURCE)
 {
-	if (SOURCE) block_destroy(STRUCT->block);
+	if (SOURCE) box_destroy(STRUCT->box);
 	mutex_destroy(STRUCT->mutex);
 	free(STRUCT);
 };

@@ -51,6 +51,38 @@ thread_local UnsignedSize ExceptionBlock;
 	return VALUE;
 };
 
+#routine exception_safeThrowExit(STRUCT,MESSAGE)
+{
+	exception_set(MESSAGE);
+	exception_try();
+	mutex_unlock(STRUCT->mutex);
+	return;
+};
+
+#routine exception_safeThrowReturn(STRUCT,MESSAGE)
+{
+	exception_set(MESSAGE);
+	exception_try();
+	mutex_unlock(STRUCT->mutex);
+	return 0;
+};
+
+#routine exception_safeThrowReturnCast(STRUCT,MESSAGE,#TYPE)
+{
+	exception_set(MESSAGE);
+	exception_try();
+	mutex_unlock(STRUCT->mutex);
+	return (TYPE) 0;
+};
+
+#routine exception_safeThrowReturnValue(STRUCT,MESSAGE,VALUE)
+{
+	exception_set(MESSAGE);
+	exception_try();
+	mutex_unlock(STRUCT->mutex);
+	return VALUE;
+};
+
 #routine exception_bypassBreak()
 {
 	if (exception_get()) break;
@@ -74,6 +106,46 @@ thread_local UnsignedSize ExceptionBlock;
 #routine exception_bypassReturnValue(VALUE)
 {
 	if (exception_get()) return VALUE;
+};
+
+#routine exception_safeBypassExit(STRUCT)
+{
+	if (exception_get())
+	{
+		exception_try();
+		mutex_unlock(STRUCT->mutex);
+		return;
+	};
+};
+
+#routine exception_safeBypassReturn(STRUCT)
+{
+	if (exception_get())
+	{
+		exception_try();
+		mutex_unlock(STRUCT->mutex);
+		return 0;
+	};
+};
+
+#routine exception_safeBypassReturnCast(STRUCT,#TYPE)
+{
+	if (exception_get())
+	{
+		exception_try();
+		mutex_unlock(STRUCT->mutex);
+		return (TYPE) 0;
+	};
+};
+
+#routine exception_safeBypassReturnValue(STRUCT,VALUE)
+{
+	if (exception_get())
+	{
+		exception_try();
+		mutex_unlock(STRUCT->mutex);
+		return VALUE;
+	};
 };
 
 void exception_start(void)
