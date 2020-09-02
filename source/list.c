@@ -6,15 +6,6 @@ struct _List
 	Mutex         mutex;
 };
 
-void list_debug(List *LIST,NullString LABEL)
-{
-	mutex_lock(LIST->mutex);
-	printf("LIST { offset: %lli, size: %lli, capacity: %lli, source: [ ",box_getOffset(LIST->box),box_getSize(LIST->box),box_getCapacity(LIST->box));
-	for (UnsignedSize index = 0; index < box_getSize(LIST->box); ++index) printf("%lli ",box_getStart(LIST->box)[index].usize);
-	printf("] } #%s\n",LABEL);
-	mutex_unlock(LIST->mutex);
-};
-
 List *list_create(void)
 {
 	List *list;
@@ -29,34 +20,18 @@ List *list_createFromPointer(Pointer *POINTER)
 	return list;
 };
 
-List *list_createFromMemoryInInterval(Pointer *POINTER,SignedSize INDEX,UnsignedSize SIZE)
+List *list_createFromMemory(Pointer *POINTER,SignedSize START,SignedSize END)
 {
 	List *list;
-	struct_createFromMemoryInInterval(List,Undefined,POINTER,INDEX,SIZE,list);
+	struct_createFromMemory(List,Undefined,POINTER,START,END,list);
 	return list;
 };
 
-List *list_createFromMemoryInRange(Pointer *POINTER,SignedSize START,SignedSize END)
-{
-	List *list;
-	struct_createFromMemoryInRange(List,Undefined,POINTER,START,END,list);
-	return list;
-};
-
-List *list_createFromCopyInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE)
+List *list_createFromCopy(List *LIST,SignedSize START,SignedSize END)
 {
 	List *list;
 	mutex_lock(LIST->mutex);
-	struct_createFromCopyInInterval(List,Undefined,LIST,INDEX,SIZE,list);
-	mutex_unlock(LIST->mutex);
-	return list;
-};
-
-List *list_createFromCopyInRange(List *LIST,SignedSize START,SignedSize END)
-{
-	List *list;
-	mutex_lock(LIST->mutex);
-	struct_createFromCopyInRange(List,Undefined,LIST,START,END,list);
+	struct_createFromCopy(List,Undefined,LIST,START,END,list);
 	mutex_unlock(LIST->mutex);
 	return list;
 };
@@ -224,48 +199,25 @@ void list_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2)
 	mutex_unlock(LIST->mutex);
 };
 
-void list_reverseInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE)
+void list_shuffle(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	box_reverseElementsInInterval(Undefined,LIST->box,INDEX,SIZE);
+	box_shuffleElements(Undefined,LIST->box,START,END);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_reverseInRange(List *LIST,SignedSize START,SignedSize END)
+void list_reverse(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	box_reverseElementsInRange(Undefined,LIST->box,START,END);
+	box_reverseElements(Undefined,LIST->box,START,END);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_shuffleInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE)
-{
-	mutex_lock(LIST->mutex);
-	box_shuffleElementsInInterval(Undefined,LIST->box,INDEX,SIZE);
-	mutex_unlock(LIST->mutex);
-};
-
-void list_shuffleInRange(List *LIST,SignedSize START,SignedSize END)
-{
-	mutex_lock(LIST->mutex);
-	box_shuffleElementsInRange(Undefined,LIST->box,START,END);
-	mutex_unlock(LIST->mutex);
-};
-
-void list_mergeFromInterval(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_INDEX,UnsignedSize SOURCE_SIZE)
+void list_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END)
 {
 	mutex_lock(TARGET_LIST->mutex);
 	mutex_lock(SOURCE_LIST->mutex);
-	box_mergeFromInterval(Undefined,TARGET_LIST->box,TARGET_INDEX,SOURCE_LIST->box,SOURCE_INDEX,SOURCE_SIZE);
-	mutex_unlock(SOURCE_LIST->mutex);
-	mutex_unlock(TARGET_LIST->mutex);
-};
-
-void list_mergeFromRange(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END)
-{
-	mutex_lock(TARGET_LIST->mutex);
-	mutex_lock(SOURCE_LIST->mutex);
-	box_mergeFromRange(Undefined,TARGET_LIST->box,TARGET_INDEX,SOURCE_LIST->box,SOURCE_START,SOURCE_END);
+	box_merge(Undefined,TARGET_LIST->box,TARGET_INDEX,SOURCE_LIST->box,SOURCE_START,SOURCE_END);
 	mutex_unlock(SOURCE_LIST->mutex);
 	mutex_unlock(TARGET_LIST->mutex);
 };
@@ -341,4 +293,13 @@ Boolean list_getLock(List *LIST)
 	Boolean lock = mutex_getLock(LIST->mutex);
 	mutex_unlock(LIST->mutex);
 	return lock;
+};
+
+void list_debug(List *LIST,NullString LABEL)
+{
+	mutex_lock(LIST->mutex);
+	printf("LIST { offset: %lli, size: %lli, capacity: %lli, source: [ ",box_getOffset(LIST->box),box_getSize(LIST->box),box_getCapacity(LIST->box));
+	for (UnsignedSize index = 0; index < box_getSize(LIST->box); ++index) printf("%lli ",box_getStart(LIST->box)[index].usize);
+	printf("] } #%s\n",LABEL);
+	mutex_unlock(LIST->mutex);
 };

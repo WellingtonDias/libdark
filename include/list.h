@@ -1,10 +1,8 @@
 // List
 List *list_create(void);
 List *list_createFromPointer(Pointer *POINTER);
-List *list_createFromMemoryInInterval(Pointer *POINTER,SignedSize INDEX,UnsignedSize SIZE);
-List *list_createFromMemoryInRange(Pointer *POINTER,SignedSize START,SignedSize END);
-List *list_createFromCopyInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE);
-List *list_createFromCopyInRange(List *LIST,SignedSize START,SignedSize END);
+List *list_createFromMemory(Pointer *POINTER,SignedSize START,SignedSize END);
+List *list_createFromCopy(List *LIST,SignedSize START,SignedSize END);
 List *list_destroy(List *LIST,Boolean SOURCE);
 
 void list_trim(List *LIST);
@@ -29,13 +27,10 @@ Undefined list_dequeue(List *LIST);
 Undefined list_pop(List *LIST);
 
 void list_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2);
-void list_reverseInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE);
-void list_reverseInRange(List *LIST,SignedSize START,SignedSize END);
-void list_shuffleInInterval(List *LIST,SignedSize INDEX,UnsignedSize SIZE);
-void list_shuffleInRange(List *LIST,SignedSize START,SignedSize END);
+void list_shuffle(List *LIST,SignedSize START,SignedSize END);
+void list_reverse(List *LIST,SignedSize START,SignedSize END);
 
-void list_mergeFromInterval(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_INDEX,UnsignedSize SOURCE_SIZE);
-void list_mergeFromRange(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END);
+void list_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END);
 
 Undefined *list_getSource(List *LIST);
 UnsignedSize list_getOffset(List *LIST);

@@ -15,28 +15,16 @@
 	box_createFromPointer(BOX_TYPE,STRUCT->box,POINTER);
 };
 
-#routine struct_createFromMemoryInInterval(#STRUCT_TYPE,#BOX_TYPE,POINTER,INDEX,SIZE,STRUCT)
+#routine struct_createFromMemory(#STRUCT_TYPE,#BOX_TYPE,POINTER,START,END,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromMemoryInInterval(BOX_TYPE,STRUCT->box,POINTER,INDEX,SIZE);
+	box_createFromMemory(BOX_TYPE,STRUCT->box,POINTER,START,END);
 };
 
-#routine struct_createFromMemoryInRange(#STRUCT_TYPE,#BOX_TYPE,POINTER,START,END,STRUCT)
+#routine struct_createFromCopy(#STRUCT_TYPE,#BOX_TYPE,SOURCE,START,END,STRUCT)
 {
 	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromMemoryInRange(BOX_TYPE,STRUCT->box,POINTER,START,END);
-};
-
-#routine struct_createFromCopyInInterval(#STRUCT_TYPE,#BOX_TYPE,SOURCE,INDEX,SIZE,STRUCT)
-{
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromCopyInInterval(BOX_TYPE,STRUCT->box,SOURCE->box,INDEX,SIZE);
-};
-
-#routine struct_createFromCopyInRange(#STRUCT_TYPE,#BOX_TYPE,SOURCE,START,END,STRUCT)
-{
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromCopyInRange(BOX_TYPE,STRUCT->box,SOURCE->box,START,END);
+	box_createFromCopy(BOX_TYPE,STRUCT->box,SOURCE->box,START,END);
 };
 
 #routine struct_destroy(STRUCT,SOURCE)

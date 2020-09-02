@@ -17,7 +17,9 @@ struct _Pointer
 Pointer *pointer_encapsulate(RawPointer RAW_POINTER,UnsignedSize SIZE)
 {
 	Pointer *pointer;
-	if (!(pointer = malloc(sizeof(Pointer*)))) exception_throwReturn("MEMORY: malloc");
+	if (RAW_POINTER == NULL) exception_throwReturn("invalid RAW_POINTER");
+	if (SIZE == 0) exception_throwReturn("invalid SIZE");
+	if (!(pointer = malloc(sizeof(Pointer)))) exception_throwReturn("MEMORY: malloc");
 	pointer->source = RAW_POINTER;
 	pointer->size = SIZE;
 	return pointer;
@@ -26,7 +28,8 @@ Pointer *pointer_encapsulate(RawPointer RAW_POINTER,UnsignedSize SIZE)
 Pointer *pointer_allocate(UnsignedSize SIZE)
 {
 	Pointer *pointer;
-	if (!(pointer = malloc(sizeof(Pointer*)))) exception_throwReturn("MEMORY: malloc");
+	if (SIZE == 0) exception_throwReturn("invalid SIZE");
+	if (!(pointer = malloc(sizeof(Pointer)))) exception_throwReturn("MEMORY: malloc");
 	if (!(pointer->source = malloc(SIZE))) exception_throwReturn("MEMORY: malloc");
 	pointer->size = SIZE;
 	return pointer;
@@ -35,7 +38,8 @@ Pointer *pointer_allocate(UnsignedSize SIZE)
 Pointer *pointer_zeroedAllocate(UnsignedSize SIZE)
 {
 	Pointer *pointer;
-	if (!(pointer = malloc(sizeof(Pointer*)))) exception_throwReturn("MEMORY: malloc");
+	if (SIZE == 0) exception_throwReturn("invalid SIZE");
+	if (!(pointer = malloc(sizeof(Pointer)))) exception_throwReturn("MEMORY: malloc");
 	if (!(pointer->source = calloc(1,SIZE))) exception_throwReturn("MEMORY: calloc");
 	pointer->size = SIZE;
 	return pointer;
@@ -43,13 +47,20 @@ Pointer *pointer_zeroedAllocate(UnsignedSize SIZE)
 
 void pointer_reallocate(Pointer *POINTER,UnsignedSize SIZE)
 {
-	if (!(POINTER->source = realloc(POINTER->source,SIZE))) exception_throwExit("MEMORY: realloc");
+	RawPointer source;
+	if (POINTER->source == NULL) exception_throwExit("invalid POINTER");
+	if (SIZE == 0) exception_throwExit("invalid SIZE");
+	if (!(source = realloc(POINTER->source,SIZE))) exception_throwExit("MEMORY: realloc");
+	POINTER->source = source;
 	POINTER->size = SIZE;
 };
 
 Pointer *pointer_free(Pointer *POINTER)
 {
+	if (POINTER->source == NULL) exception_throwReturn("invalid POINTER");
 	free(POINTER->source);
+	POINTER->source = NULL;
+	POINTER->size = 0;
 	free(POINTER);
 	return NULL;
 };

@@ -32,10 +32,10 @@ void teste1()
 	list_debug(list,"mapped");
 	list_filter(list,&filter);
 	list_debug(list,"filtered");
-	list_reverseInRange(list,2,-3);
-	list_debug(list,"reverseInRange");
-	list_reverseInInterval(list,3,6);
-	list_debug(list,"reverseInInterval");
+	list_reverse(list,2,-3);
+	list_debug(list,"reverse");
+	list_reverse(list,3,5);
+	list_debug(list,"reverse");
 	UnsignedSize reduced = list_reduce(list,&reduce).usize;
 	printf("REDUCED: %lli\n",reduced);
 	Boolean found = list_search(list,(Undefined) 38,&search);
@@ -84,13 +84,13 @@ int main(void)
 	printf("FRONT: %lli\n",list_getFront(list1).usize);
 	printf("REAR: %lli\n",list_getRear(list1).usize);
 
-	List *list2 = list_createFromCopyInRange(list1,1,-2);
-	list_debug(list2,"createFromCopyInRange");
-	list_mergeFromRange(list2,15,list1,4,-11);
-	list_debug(list2,"mergeFromInterval");
+	List *list2 = list_createFromCopy(list1,1,-2);
+	list_debug(list2,"createFromCopy");
+	list_merge(list2,15,list1,4,-11);
+	list_debug(list2,"merge");
 
-	List *list3 = list_createFromCopyInInterval(list2,1,8);
-	list_debug(list3,"createFromCopyInInterval");
+	List *list3 = list_createFromCopy(list2,1,7);
+	list_debug(list3,"list_createFromCopy");
 	list_dequeue(list3);
 	list_debug(list3,"dequeue");
 	list_remove(list3,2);
@@ -105,8 +105,8 @@ int main(void)
 
 	list_trim(list2);
 	Pointer *pointer = pointer_encapsulate(list_getSource(list2),list_getSize(list2));
-	List *list4 = list_createFromMemoryInRange(pointer,0,-1);
-	list_debug(list4,"createFromMemoryInRange");
+	List *list4 = list_createFromMemory(pointer,0,-1);
+	list_debug(list4,"createFromMemory");
 	for (UnsignedSize i = 0; i < 4; ++i) list_dequeue(list4);
 	list_debug(list4,"dequeue");
 	list_setSize(list4,32);
