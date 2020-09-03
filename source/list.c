@@ -67,56 +67,24 @@ Boolean list_compare(List *LIST1,List *LIST2)
 	return comparison;
 };
 
-void list_map(List *LIST,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
-{
-	mutex_lock(LIST->mutex);
-	box_map(Undefined,LIST->box,CALLBACK,LIST);
-	mutex_unlock(LIST->mutex);
-};
-
-void list_filter(List *LIST,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
-{
-	mutex_lock(LIST->mutex);
-	box_filter(Undefined,LIST->box,CALLBACK,LIST);
-	mutex_unlock(LIST->mutex);
-};
-
-Undefined list_reduce(List *LIST,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR))
-{
-	Undefined value = (Undefined) 0;
-	mutex_lock(LIST->mutex);
-	box_reduce(Undefined,LIST->box,CALLBACK,LIST,value);
-	mutex_unlock(LIST->mutex);
-	return value;
-};
-
-Boolean list_search(List *LIST,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET))
-{
-	Boolean found;
-	mutex_lock(LIST->mutex);
-	box_search(Undefined,LIST->box,CALLBACK,LIST,TARGET,found);
-	mutex_unlock(LIST->mutex);
-	return found;
-};
-
 void list_insert(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	box_insertElement(Undefined,LIST->box,INDEX,VALUE);
+	stream_insert(Undefined,LIST->box,INDEX,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
 void list_prepend(List *LIST,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	box_insertElementAtStart(Undefined,LIST->box,VALUE);
+	stream_insertAtStart(Undefined,LIST->box,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
 void list_append(List *LIST,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	box_insertElementAtEnd(Undefined,LIST->box,VALUE);
+	stream_insertAtEnd(Undefined,LIST->box,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
@@ -124,7 +92,7 @@ Undefined list_replace(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_replaceElement(Undefined,LIST->box,INDEX,VALUE,value);
+	stream_replace(Undefined,LIST->box,INDEX,VALUE,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -133,7 +101,7 @@ Undefined list_set(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_setElement(Undefined,LIST->box,INDEX,VALUE,value);
+	stream_set(Undefined,LIST->box,INDEX,VALUE,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -142,7 +110,7 @@ Undefined list_get(List *LIST,SignedSize INDEX)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_getElement(Undefined,LIST->box,INDEX,value);
+	stream_get(Undefined,LIST->box,INDEX,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -151,7 +119,7 @@ Undefined list_getFront(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_getElementAtStart(Undefined,LIST->box,value);
+	stream_getAtStart(Undefined,LIST->box,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -160,7 +128,7 @@ Undefined list_getRear(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_getElementAtEnd(Undefined,LIST->box,value);
+	stream_getAtEnd(Undefined,LIST->box,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -169,7 +137,7 @@ Undefined list_remove(List *LIST,SignedSize INDEX)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_removeElement(Undefined,LIST->box,INDEX,value);
+	stream_remove(Undefined,LIST->box,INDEX,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -178,7 +146,7 @@ Undefined list_dequeue(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_removeElementAtStart(Undefined,LIST->box,value);
+	stream_removeAtStart(Undefined,LIST->box,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -187,7 +155,7 @@ Undefined list_pop(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	box_removeElementAtEnd(Undefined,LIST->box,value);
+	stream_removeAtEnd(Undefined,LIST->box,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
@@ -195,22 +163,54 @@ Undefined list_pop(List *LIST)
 void list_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2)
 {
 	mutex_lock(LIST->mutex);
-	box_swapElements(Undefined,LIST->box,INDEX1,INDEX2);
+	stream_swap(Undefined,LIST->box,INDEX1,INDEX2);
 	mutex_unlock(LIST->mutex);
 };
 
 void list_shuffle(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	box_shuffleElements(Undefined,LIST->box,START,END);
+	stream_shuffle(Undefined,LIST->box,START,END);
 	mutex_unlock(LIST->mutex);
 };
 
 void list_reverse(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	box_reverseElements(Undefined,LIST->box,START,END);
+	stream_reverse(Undefined,LIST->box,START,END);
 	mutex_unlock(LIST->mutex);
+};
+
+void list_map(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+{
+	mutex_lock(LIST->mutex);
+	stream_map(Undefined,LIST->box,START,END,CALLBACK,LIST);
+	mutex_unlock(LIST->mutex);
+};
+
+void list_filter(List *LIST,SignedSize START,SignedSize END,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+{
+	mutex_lock(LIST->mutex);
+	stream_filter(Undefined,LIST->box,START,END,CALLBACK,LIST);
+	mutex_unlock(LIST->mutex);
+};
+
+Undefined list_reduce(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR))
+{
+	Undefined value = (Undefined) 0;
+	mutex_lock(LIST->mutex);
+	stream_reduce(Undefined,LIST->box,START,END,CALLBACK,LIST,value);
+	mutex_unlock(LIST->mutex);
+	return value;
+};
+
+Boolean list_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET))
+{
+	Boolean found;
+	mutex_lock(LIST->mutex);
+	stream_search(Undefined,LIST->box,START,END,CALLBACK,LIST,TARGET,found);
+	mutex_unlock(LIST->mutex);
+	return found;
 };
 
 void list_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END)

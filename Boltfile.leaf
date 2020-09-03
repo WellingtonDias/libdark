@@ -35,7 +35,7 @@
 		},
 		source =
 		{
-			input = [["./source/",["header","exception","pointer","box","mutex","struct","list"],".c"]],
+			input = [["./source/",["header","exception","pointer","box","blob","stream","mutex","struct","list"],".c"]],
 			output = "./output/DARK.c"
 		}
 	},

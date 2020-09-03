@@ -28,7 +28,7 @@
 {
 	#local SignedSize index;
 	box_calculateIndex(INPUT_INDEX,SIZE,index);
-	if ((index < 0) || (index >= SIZE)) exception_throwBreak("invalid INDEX");
+	if ((index < 0) || (index >= (SignedSize) SIZE)) exception_throwBreak("invalid INDEX");
 	OUTPUT_INDEX = index;
 };
 
@@ -39,7 +39,7 @@
 	box_calculateIndex(INPUT_START,SIZE,start);
 	if (start < 0) exception_throwBreak("invalid RANGE");
 	box_calculateIndex(INPUT_END,SIZE,end);
-	if ((end < start) || (end >= SIZE)) exception_throwBreak("invalid RANGE");
+	if ((end < start) || (end >= (SignedSize) SIZE)) exception_throwBreak("invalid RANGE");
 	OUTPUT_START = start;
 	OUTPUT_END = end;
 };
@@ -48,7 +48,7 @@
 {
 	#local UnsignedSize capacity;
 	capacity = 1;
-	while (capacity < SIZE) capacity *= 2;
+	while (capacity < BOX.offset + SIZE) capacity *= 2;
 	if (capacity != BOX.capacity)
 	{
 		#local TYPE* source;
@@ -93,7 +93,7 @@
 	#local UnsignedSize index;
 	#local UnsignedSize size;
 	box_calculateRange(START,END,pointer_getSize(POINTER),index,size);
-	size -= index + 1;
+	size = size - index + 1;
 	box_createFromRawMemory(TYPE,BOX,pointer_getSource(POINTER) + index,size);
 };
 
@@ -102,7 +102,7 @@
 	#local UnsignedSize index;
 	#local UnsignedSize size;
 	box_calculateRange(START,END,SOURCE.size,index,size);
-	size -= index + 1;
+	size = size - index + 1;
 	box_createFromRawMemory(TYPE,BOX,SOURCE.start + index,size);
 };
 
@@ -150,7 +150,7 @@
 	#local UnsignedSize size;
 	box_calculateSafeIndex(TARGET_INDEX,TARGET_BOX.size + 1,targetIndex);
 	box_calculateRange(SOURCE_START,SOURCE_END,SOURCE_BOX.size,sourceIndex,size);
-	size -= sourceIndex + 1;
+	size = size - sourceIndex + 1;
 	box_adjustCapacity(TYPE,TARGET_BOX,TARGET_BOX.size + size);
 	if (targetIndex < TARGET_BOX.size) memmove(TARGET_BOX.start + targetIndex + size,TARGET_BOX.start + targetIndex,(TARGET_BOX.size - targetIndex) * sizeof(TYPE));
 	memcpy(TARGET_BOX.start + targetIndex,SOURCE_BOX.start + sourceIndex,size * sizeof(TYPE));

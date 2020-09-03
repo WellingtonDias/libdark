@@ -9,10 +9,6 @@ void list_trim(List *LIST);
 void list_clear(List *LIST);
 
 Boolean list_compare(List *LIST1,List *LIST2);
-void list_map(List *LIST,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE));
-void list_filter(List *LIST,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE));
-Undefined list_reduce(List *LIST,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR));
-Boolean list_search(List *LIST,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET));
 
 void list_insert(List *LIST,SignedSize INDEX,Undefined VALUE);
 void list_prepend(List *LIST,Undefined VALUE);
@@ -29,6 +25,11 @@ Undefined list_pop(List *LIST);
 void list_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2);
 void list_shuffle(List *LIST,SignedSize START,SignedSize END);
 void list_reverse(List *LIST,SignedSize START,SignedSize END);
+
+void list_map(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE));
+void list_filter(List *LIST,SignedSize START,SignedSize END,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE));
+Undefined list_reduce(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR));
+Boolean list_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET));
 
 void list_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END);
 

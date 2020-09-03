@@ -159,7 +159,7 @@
 	#local UnsignedSize start;
 	#local UnsignedSize end;
 	box_calculateRange(START,END,STREAM.size,start,end);
-	for (; start < end; ++start) STREAM.start[start] = (*CALLBACK)(STRUCT,start,STREAM.start[start]);
+	for (; start <= end; ++start) STREAM.start[start] = (*CALLBACK)(STRUCT,start,STREAM.start[start]);
 };
 
 #routine stream_filter(#TYPE,STREAM,START,END,#CALLBACK,STRUCT)
@@ -167,7 +167,7 @@
 	#local UnsignedSize start;
 	#local UnsignedSize end;
 	box_calculateRange(START,END,STREAM.size,start,end);
-	for (; start < end; ++start)
+	for (; start <= end; ++start)
 	{
 		if (!(*CALLBACK)(STRUCT,start,STREAM.start[start]))
 		{
@@ -184,7 +184,7 @@
 	#local UnsignedSize start;
 	#local UnsignedSize end;
 	box_calculateRange(START,END,STREAM.size,start,end);
-	for (; start < end; ++start) ACCUMULATOR = (*CALLBACK)(STRUCT,start,STREAM.start[start],ACCUMULATOR);
+	for (; start <= end; ++start) ACCUMULATOR = (*CALLBACK)(STRUCT,start,STREAM.start[start],ACCUMULATOR);
 };
 
 #routine stream_search(#TYPE,STREAM,START,END,#CALLBACK,STRUCT,TARGET,FOUND)
@@ -192,9 +192,9 @@
 	#local UnsignedSize start;
 	#local UnsignedSize end;
 	box_calculateRange(START,END,STREAM.size,start,end);
-	for (; start < end; ++start)
+	for (; start <= end; ++start)
 	{
 		if ((*CALLBACK)(STRUCT,start,STREAM.start[start],TARGET)) break;
 	};
-	FOUND = start < end;
+	FOUND = start <= end;
 };
