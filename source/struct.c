@@ -29,7 +29,7 @@
 
 #routine struct_destroy(STRUCT,SOURCE)
 {
-	if (SOURCE) box_destroy(STRUCT->box);
+	box_destroy(STRUCT->box,SOURCE);
 	mutex_destroy(STRUCT->mutex);
 	free(STRUCT);
 };

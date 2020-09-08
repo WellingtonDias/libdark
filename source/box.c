@@ -106,9 +106,10 @@
 	box_createFromRawMemory(TYPE,BOX,SOURCE.start + index,size);
 };
 
-#routine box_destroy(BOX)
+#routine box_destroy(BOX,SOURCE)
 {
-	free(BOX.source);
+	if (SOURCE) free(BOX.source);
+	box_update(BOX,NULL,0,0);
 };
 
 #routine box_trim(#TYPE,BOX)

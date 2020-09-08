@@ -55,7 +55,7 @@ void pointer_reallocate(Pointer *POINTER,UnsignedSize SIZE)
 	POINTER->size = SIZE;
 };
 
-Pointer *pointer_free(Pointer *POINTER)
+Pointer *pointer_deallocate(Pointer *POINTER)
 {
 	if (POINTER->source == NULL) exception_throwReturn("invalid POINTER");
 	free(POINTER->source);
