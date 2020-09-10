@@ -21,7 +21,7 @@
 #define DARK_BLOB          18
 #define DARK_LIST          19
 #define DARK_MAP           20
-#define DARK_RAW_POINTER   21
+#define DARK_CONTAINER     21
 #define DARK_POINTER       22
 
 #define Boolean      bool
@@ -40,13 +40,13 @@
 #define Character    char
 #define NullString   char*
 #define RawString    char*
-#define RawPointer   void*
+#define Pointer      void*
 
-typedef struct _String  String;
-typedef struct _Blob    Blob;
-typedef struct _List    List;
-typedef struct _Map     Map;
-typedef struct _Pointer Pointer;
+typedef struct _String    String;
+typedef struct _Blob      Blob;
+typedef struct _List      List;
+typedef struct _Map       Map;
+typedef struct _Container Container;
 
 typedef union
 {
@@ -70,8 +70,8 @@ typedef union
 	Blob*        blob;
 	List*        list;
 	Map*         map;
-	RawPointer   rawPointer;
-	Pointer*     pointer;
+	Container*   container;
+	Pointer      pointer;
 } Undefined;
 
 typedef struct

@@ -1,14 +1,16 @@
-#routine stream_insert(#TYPE,STREAM,INDEX,VALUE)
+#routine stream_insert(EXCEPTION,#TYPE,STREAM,INDEX,VALUE)
 {
 	#local UnsignedSize index;
-	box_calculateSafeIndex(INDEX,STREAM.size + 1,index);
-	box_adjustCapacity(TYPE,STREAM,STREAM.size + 1);
+	block_calculateSafeIndex(EXCEPTION,INDEX,STREAM.size + 1,index);
+	exception_routineBypass(EXCEPTION);
+	block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size + 1);
+	exception_routineBypass(EXCEPTION);
 	if (index < STREAM.size) memmove(STREAM.start + index + 1,STREAM.start + index,(STREAM.size - index) * sizeof(TYPE));
 	STREAM.start[index] = VALUE;
 	++STREAM.size;
 };
 
-#routine stream_insertAtStart(#TYPE,STREAM,VALUE)
+#routine stream_insertAtStart(EXCEPTION,#TYPE,STREAM,VALUE)
 {
 	if (STREAM.offset > 0)
 	{
@@ -17,117 +19,118 @@
 	}
 	else
 	{
-		box_adjustCapacity(TYPE,STREAM,STREAM.size + 1);
+		block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size + 1);
+		exception_routineBypass(EXCEPTION);
 		if (STREAM.size > 0) memmove(STREAM.start + 1,STREAM.start,STREAM.size * sizeof(TYPE));
 	};
 	STREAM.start[0] = VALUE;
 	++STREAM.size;
 };
 
-#routine stream_insertAtEnd(#TYPE,STREAM,VALUE)
+#routine stream_insertAtEnd(EXCEPTION,#TYPE,STREAM,VALUE)
 {
-	box_adjustCapacity(TYPE,STREAM,STREAM.size + 1);
+	block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size + 1);
+	exception_routineBypass(EXCEPTION);
 	STREAM.start[STREAM.size] = VALUE;
 	++STREAM.size;
 };
 
-#routine stream_replace(#TYPE,STREAM,INDEX,NEW_VALUE,OLD_VALUE)
+#routine stream_replace(EXCEPTION,#TYPE,STREAM,INDEX,VALUE,RETURN)
 {
 	#local UnsignedSize index;
-	box_calculateSafeIndex(INDEX,STREAM.size,index);
-	OLD_VALUE = STREAM.start[index];
-	STREAM.start[index] = NEW_VALUE;
+	block_calculateSafeIndex(EXCEPTION,INDEX,STREAM.size,index);
+	exception_routineBypass(EXCEPTION);
+	RETURN = STREAM.start[index];
+	STREAM.start[index] = VALUE;
 };
 
-#routine stream_set(#TYPE,STREAM,INDEX,NEW_VALUE,OLD_VALUE)
+#routine stream_set(EXCEPTION,#TYPE,STREAM,INDEX,VALUE,RETURN)
 {
 	#local UnsignedSize index;
-	box_calculateUnsafeIndex(INDEX,STREAM.size,index);
+	block_calculateUnsafeIndex(EXCEPTION,INDEX,STREAM.size,index);
+	exception_routineBypass(EXCEPTION);
 	if (index >= STREAM.size)
 	{
-		box_adjustCapacity(TYPE,STREAM,index + 1);
+		block_adjustCapacity(EXCEPTION,TYPE,STREAM,index + 1);
+		exception_routineBypass(EXCEPTION);
 		if (index > STREAM.size) memset(STREAM.start + STREAM.size,0,(index - STREAM.size) * sizeof(TYPE));
 		STREAM.size = index + 1;
-		OLD_VALUE = (TYPE) 0;
+		RETURN = (TYPE) 0;
 	}
-	else OLD_VALUE = STREAM.start[index];
-	STREAM.start[index] = NEW_VALUE;
+	else RETURN = STREAM.start[index];
+	STREAM.start[index] = VALUE;
 };
 
-#routine stream_get(#TYPE,STREAM,INDEX,VALUE)
+#routine stream_get(EXCEPTION,#TYPE,STREAM,INDEX,RETURN)
 {
 	#local UnsignedSize index;
-	box_calculateSafeIndex(INDEX,STREAM.size,index);
-	VALUE = STREAM.start[index];
+	block_calculateSafeIndex(EXCEPTION,INDEX,STREAM.size,index);
+	exception_routineBypass(EXCEPTION);
+	RETURN = STREAM.start[index];
 };
 
-#routine stream_getAtStart(#TYPE,STREAM,VALUE)
+#routine stream_getAtStart(EXCEPTION,#TYPE,STREAM,RETURN)
 {
-	if (STREAM.size == 0) exception_throwBreak("STREAM: empty");
-	VALUE = STREAM.start[0];
+	if (STREAM.size == 0) exception_routineThrow(EXCEPTION,"STREAM: empty");
+	RETURN = STREAM.start[0];
 };
 
-#routine stream_getAtEnd(#TYPE,STREAM,VALUE)
+#routine stream_getAtEnd(EXCEPTION,#TYPE,STREAM,RETURN)
 {
-	if (STREAM.size == 0) exception_throwBreak("STREAM: empty");
-	VALUE = STREAM.start[STREAM.size - 1];
+	if (STREAM.size == 0) exception_routineThrow(EXCEPTION,"STREAM: empty");
+	RETURN = STREAM.start[STREAM.size - 1];
 };
 
-#routine stream_erase(#TYPE,STREAM,INDEX,VALUE)
-{
-	#local UnsignedSize index;
-	box_calculateSafeIndex(INDEX,STREAM.size,index);
-	VALUE = STREAM.start[index];
-	STREAM.start[index] = (TYPE) 0;
-};
-
-#routine stream_remove(#TYPE,STREAM,INDEX,VALUE)
+#routine stream_remove(EXCEPTION,#TYPE,STREAM,INDEX,RETURN)
 {
 	#local UnsignedSize index;
-	box_calculateSafeIndex(INDEX,STREAM.size,index);
+	block_calculateSafeIndex(EXCEPTION,INDEX,STREAM.size,index);
+	exception_routineBypass(EXCEPTION);
 	--STREAM.size;
-	VALUE = STREAM.start[index];
+	RETURN = STREAM.start[index];
 	if (index < STREAM.size) memcpy(STREAM.start + index,STREAM.start + index + 1,(STREAM.size - index) * sizeof(TYPE));
-	box_adjustCapacity(TYPE,STREAM,STREAM.size);
+	block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size);
 };
 
-#routine stream_removeAtStart(#TYPE,STREAM,VALUE)
+#routine stream_removeAtStart(EXCEPTION,#TYPE,STREAM,RETURN)
 {
-	if (STREAM.size == 0) exception_throwBreak("STREAM: empty");
+	if (STREAM.size == 0) exception_routineThrow(EXCEPTION,"STREAM: empty");
 	--STREAM.size;
-	VALUE = STREAM.start[0];
+	RETURN = STREAM.start[0];
 	++STREAM.start;
 	++STREAM.offset;
 };
 
-#routine stream_removeAtEnd(#TYPE,STREAM,VALUE)
+#routine stream_removeAtEnd(EXCEPTION,#TYPE,STREAM,RETURN)
 {
-	if (STREAM.size == 0) exception_throwBreak("STREAM: empty");
+	if (STREAM.size == 0) exception_routineThrow(EXCEPTION,"STREAM: empty");
 	--STREAM.size;
-	VALUE = STREAM.start[STREAM.size];
-	box_adjustCapacity(TYPE,STREAM,STREAM.size);
+	RETURN = STREAM.start[STREAM.size];
+	block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size);
 };
 
-#routine stream_swap(#TYPE,STREAM,INDEX1,INDEX2)
+#routine stream_swap(EXCEPTION,#TYPE,STREAM,INDEX1,INDEX2)
 {
 	#local TYPE value;
 	#local UnsignedSize index1;
 	#local UnsignedSize index2;
-	box_calculateSafeIndex(INDEX1,STREAM.size,index1);
-	box_calculateSafeIndex(INDEX2,STREAM.size,index2);
+	block_calculateSafeIndex(EXCEPTION,INDEX1,STREAM.size,index1);
+	block_calculateSafeIndex(EXCEPTION,INDEX2,STREAM.size,index2);
+	exception_routineBypass(EXCEPTION);
 	value = STREAM.start[index1];
 	STREAM.start[index1] = STREAM.start[index2];
 	STREAM.start[index2] = value;
 };
 
-#routine stream_shuffle(#TYPE,STREAM,START,END)
+#routine stream_shuffle(EXCEPTION,#TYPE,STREAM,START,END)
 {
 	#local TYPE value;
 	#local UnsignedSize start;
 	#local UnsignedSize end;
 	#local UnsignedSize index;
 	#local UnsignedSize random;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	srand(time(NULL));
 	for (index = end; index > start; --index)
 	{
@@ -138,12 +141,13 @@
 	};
 };
 
-#routine stream_reverse(#TYPE,STREAM,START,END)
+#routine stream_reverse(EXCEPTION,#TYPE,STREAM,START,END)
 {
 	#local TYPE value;
 	#local UnsignedSize start;
 	#local UnsignedSize end;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	while (start < end)
 	{
 		value = STREAM.start[start];
@@ -154,19 +158,21 @@
 	};
 };
 
-#routine stream_map(#TYPE,STREAM,START,END,#CALLBACK,STRUCT)
+#routine stream_map(EXCEPTION,#TYPE,STREAM,START,END,#CALLBACK,STRUCT)
 {
 	#local UnsignedSize start;
 	#local UnsignedSize end;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	for (; start <= end; ++start) STREAM.start[start] = (*CALLBACK)(STRUCT,start,STREAM.start[start]);
 };
 
-#routine stream_filter(#TYPE,STREAM,START,END,#CALLBACK,STRUCT)
+#routine stream_filter(EXCEPTION,#TYPE,STREAM,START,END,#CALLBACK,STRUCT)
 {
 	#local UnsignedSize start;
 	#local UnsignedSize end;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	for (; start <= end; ++start)
 	{
 		if (!(*CALLBACK)(STRUCT,start,STREAM.start[start]))
@@ -176,25 +182,27 @@
 			--start;
 		};
 	};
-	box_adjustCapacity(TYPE,STREAM,STREAM.size);
+	block_adjustCapacity(EXCEPTION,TYPE,STREAM,STREAM.size);
 };
 
-#routine stream_reduce(#TYPE,STREAM,START,END,#CALLBACK,STRUCT,ACCUMULATOR)
+#routine stream_reduce(EXCEPTION,#TYPE,STREAM,START,END,#CALLBACK,STRUCT,ACCUMULATOR)
 {
 	#local UnsignedSize start;
 	#local UnsignedSize end;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	for (; start <= end; ++start) ACCUMULATOR = (*CALLBACK)(STRUCT,start,STREAM.start[start],ACCUMULATOR);
 };
 
-#routine stream_search(#TYPE,STREAM,START,END,#CALLBACK,STRUCT,TARGET,FOUND)
+#routine stream_search(EXCEPTION,#TYPE,STREAM,START,END,#CALLBACK,STRUCT,TARGET,RETURN)
 {
 	#local UnsignedSize start;
 	#local UnsignedSize end;
-	box_calculateRange(START,END,STREAM.size,start,end);
+	block_calculateRange(EXCEPTION,START,END,STREAM.size,start,end);
+	exception_routineBypass(EXCEPTION);
 	for (; start <= end; ++start)
 	{
 		if ((*CALLBACK)(STRUCT,start,STREAM.start[start],TARGET)) break;
 	};
-	FOUND = start <= end;
+	RETURN = start <= end;
 };

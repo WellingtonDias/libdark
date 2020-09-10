@@ -1,35 +1,40 @@
-#routine struct_allocate(#TYPE,STRUCT)
+#routine struct_allocate(#TYPE,RETURN)
 {
-	if (!(STRUCT = calloc(1,sizeof(TYPE)))) exception_throwBreak("MEMORY: calloc");
+	if (!(RETURN = calloc(1,sizeof(TYPE)))) exception_globalThrowBreak("MEMORY: calloc");
 };
 
-#routine struct_create(#STRUCT_TYPE,#BOX_TYPE,STRUCT)
+#routine struct_create(#STRUCT_TYPE,#BLOCK_TYPE,RETURN)
 {
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_create(BOX_TYPE,STRUCT->box);
+	struct_allocate(STRUCT_TYPE,RETURN);
+	exception_globalBypassBreak();
+	block_create(BLOCK_TYPE,RETURN->block);
 };
 
-#routine struct_createFromPointer(#STRUCT_TYPE,#BOX_TYPE,POINTER,STRUCT)
+#routine struct_createFromContainer(#STRUCT_TYPE,#BLOCK_TYPE,CONTAINER,RETURN)
 {
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromPointer(BOX_TYPE,STRUCT->box,POINTER);
+	struct_allocate(STRUCT_TYPE,RETURN);
+	exception_globalBypassBreak();
+	block_createFromContainer(BLOCK_TYPE,RETURN->block,CONTAINER);
 };
 
-#routine struct_createFromMemory(#STRUCT_TYPE,#BOX_TYPE,POINTER,START,END,STRUCT)
+#routine struct_createFromMemory(#STRUCT_TYPE,#BLOCK_TYPE,CONTAINER,START,END,RETURN)
 {
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromMemory(BOX_TYPE,STRUCT->box,POINTER,START,END);
+	struct_allocate(STRUCT_TYPE,RETURN);
+	exception_globalBypassBreak();
+	block_createFromMemory(BLOCK_TYPE,RETURN->block,CONTAINER,START,END);
 };
 
-#routine struct_createFromCopy(#STRUCT_TYPE,#BOX_TYPE,SOURCE,START,END,STRUCT)
+#routine struct_createFromCopy(#STRUCT_TYPE,#BLOCK_TYPE,STRUCT,START,END,RETURN)
 {
-	struct_allocate(STRUCT_TYPE,STRUCT);
-	box_createFromCopy(BOX_TYPE,STRUCT->box,SOURCE->box,START,END);
+	struct_allocate(STRUCT_TYPE,RETURN);
+	exception_globalBypassBreak();
+	block_createFromCopy(BLOCK_TYPE,RETURN->block,STRUCT->block,START,END);
 };
 
-#routine struct_destroy(STRUCT,SOURCE)
+#routine struct_destroy(STRUCT,DEALLOCATE)
 {
-	box_destroy(STRUCT->box,SOURCE);
+	block_destroy(STRUCT->block,DEALLOCATE);
 	mutex_destroy(STRUCT->mutex);
+	exception_destroy(STRUCT->exception);
 	free(STRUCT);
 };

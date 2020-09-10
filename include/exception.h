@@ -1,8 +1,8 @@
 // Exception
-void exception_start(void);
-void exception_end(void);
+void Exception_start(void);
+void Exception_end(void);
 
-NullString exception_catch(void);
-void exception_throw(NullString MESSAGE);
+NullString Exception_catch(void);
+void Exception_throw(NullString MESSAGE);
 
-void exception_debug(NullString MESSAGE);
+void Exception_debug(NullString MESSAGE);

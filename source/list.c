@@ -1,33 +1,34 @@
-box_define(Box_undefined,Undefined);
+block_define(Block_undefined,Undefined);
 
 struct _List
 {
-	Box_undefined box;
-	Mutex         mutex;
+	Block_undefined block;
+	Mutex           mutex;
+	Exception       exception;
 };
 
-List *list_create(void)
+List *List_create(void)
 {
 	List *list;
 	struct_create(List,Undefined,list);
 	return list;
 };
 
-List *list_createFromPointer(Pointer *POINTER)
+List *List_createFromContainer(Container *CONTAINER)
 {
 	List *list;
-	struct_createFromPointer(List,Undefined,POINTER,list);
+	struct_createFromContainer(List,Undefined,CONTAINER,list);
 	return list;
 };
 
-List *list_createFromMemory(Pointer *POINTER,SignedSize START,SignedSize END)
+List *List_createFromMemory(Container *CONTAINER,SignedSize START,SignedSize END)
 {
 	List *list;
-	struct_createFromMemory(List,Undefined,POINTER,START,END,list);
+	struct_createFromMemory(List,Undefined,CONTAINER,START,END,list);
 	return list;
 };
 
-List *list_createFromCopy(List *LIST,SignedSize START,SignedSize END)
+List *List_createFromCopy(List *LIST,SignedSize START,SignedSize END)
 {
 	List *list;
 	mutex_lock(LIST->mutex);
@@ -36,258 +37,259 @@ List *list_createFromCopy(List *LIST,SignedSize START,SignedSize END)
 	return list;
 };
 
-List *list_destroy(List *LIST,Boolean SOURCE)
+List *List_destroy(List *LIST,Boolean SOURCE)
 {
 	mutex_lock(LIST->mutex);
 	struct_destroy(LIST,SOURCE);
 	return NULL;
 };
 
-void list_trim(List *LIST)
+void List_trim(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	box_trim(Undefined,LIST->box);
+	block_trim(LIST->exception,Undefined,LIST->block);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_clear(List *LIST)
+void List_clear(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	box_clear(Undefined,LIST->box);
+	block_clear(LIST->exception,Undefined,LIST->block);
 	mutex_unlock(LIST->mutex);
 };
 
-Boolean list_compare(List *LIST1,List *LIST2)
+Boolean List_compare(List *LIST1,List *LIST2)
 {
+	Boolean comparison;
 	mutex_lock(LIST1->mutex);
 	mutex_lock(LIST2->mutex);
-	Boolean comparison = box_compare(Undefined,LIST1->box,LIST2->box);
+	block_compare(Undefined,LIST1->block,LIST2->block,comparison);
 	mutex_unlock(LIST2->mutex);
 	mutex_unlock(LIST1->mutex);
 	return comparison;
 };
 
-void list_insert(List *LIST,SignedSize INDEX,Undefined VALUE)
+void List_insert(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	stream_insert(Undefined,LIST->box,INDEX,VALUE);
+	stream_insert(LIST->exception,Undefined,LIST->block,INDEX,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_prepend(List *LIST,Undefined VALUE)
+void List_prepend(List *LIST,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	stream_insertAtStart(Undefined,LIST->box,VALUE);
+	stream_insertAtStart(LIST->exception,Undefined,LIST->block,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_append(List *LIST,Undefined VALUE)
+void List_append(List *LIST,Undefined VALUE)
 {
 	mutex_lock(LIST->mutex);
-	stream_insertAtEnd(Undefined,LIST->box,VALUE);
+	stream_insertAtEnd(LIST->exception,Undefined,LIST->block,VALUE);
 	mutex_unlock(LIST->mutex);
 };
 
-Undefined list_replace(List *LIST,SignedSize INDEX,Undefined VALUE)
+Undefined List_replace(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_replace(Undefined,LIST->box,INDEX,VALUE,value);
+	stream_replace(LIST->exception,Undefined,LIST->block,INDEX,VALUE,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_set(List *LIST,SignedSize INDEX,Undefined VALUE)
+Undefined List_set(List *LIST,SignedSize INDEX,Undefined VALUE)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_set(Undefined,LIST->box,INDEX,VALUE,value);
+	stream_set(LIST->exception,Undefined,LIST->block,INDEX,VALUE,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_get(List *LIST,SignedSize INDEX)
+Undefined List_get(List *LIST,SignedSize INDEX)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_get(Undefined,LIST->box,INDEX,value);
+	stream_get(LIST->exception,Undefined,LIST->block,INDEX,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_getFront(List *LIST)
+Undefined List_getFront(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_getAtStart(Undefined,LIST->box,value);
+	stream_getAtStart(LIST->exception,Undefined,LIST->block,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_getRear(List *LIST)
+Undefined List_getRear(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_getAtEnd(Undefined,LIST->box,value);
+	stream_getAtEnd(LIST->exception,Undefined,LIST->block,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_remove(List *LIST,SignedSize INDEX)
+Undefined List_remove(List *LIST,SignedSize INDEX)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_remove(Undefined,LIST->box,INDEX,value);
+	stream_remove(LIST->exception,Undefined,LIST->block,INDEX,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_dequeue(List *LIST)
+Undefined List_dequeue(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_removeAtStart(Undefined,LIST->box,value);
+	stream_removeAtStart(LIST->exception,Undefined,LIST->block,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Undefined list_pop(List *LIST)
+Undefined List_pop(List *LIST)
 {
 	Undefined value;
 	mutex_lock(LIST->mutex);
-	stream_removeAtEnd(Undefined,LIST->box,value);
+	stream_removeAtEnd(LIST->exception,Undefined,LIST->block,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-void list_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2)
+void List_swap(List *LIST,SignedSize INDEX1,SignedSize INDEX2)
 {
 	mutex_lock(LIST->mutex);
-	stream_swap(Undefined,LIST->box,INDEX1,INDEX2);
+	stream_swap(LIST->exception,Undefined,LIST->block,INDEX1,INDEX2);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_shuffle(List *LIST,SignedSize START,SignedSize END)
+void List_shuffle(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	stream_shuffle(Undefined,LIST->box,START,END);
+	stream_shuffle(LIST->exception,Undefined,LIST->block,START,END);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_reverse(List *LIST,SignedSize START,SignedSize END)
+void List_reverse(List *LIST,SignedSize START,SignedSize END)
 {
 	mutex_lock(LIST->mutex);
-	stream_reverse(Undefined,LIST->box,START,END);
+	stream_reverse(LIST->exception,Undefined,LIST->block,START,END);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_map(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+void List_map(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
 {
 	mutex_lock(LIST->mutex);
-	stream_map(Undefined,LIST->box,START,END,CALLBACK,LIST);
+	stream_map(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST);
 	mutex_unlock(LIST->mutex);
 };
 
-void list_filter(List *LIST,SignedSize START,SignedSize END,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+void List_filter(List *LIST,SignedSize START,SignedSize END,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
 {
 	mutex_lock(LIST->mutex);
-	stream_filter(Undefined,LIST->box,START,END,CALLBACK,LIST);
+	stream_filter(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST);
 	mutex_unlock(LIST->mutex);
 };
 
-Undefined list_reduce(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR))
+Undefined List_reduce(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR))
 {
 	Undefined value = (Undefined) 0;
 	mutex_lock(LIST->mutex);
-	stream_reduce(Undefined,LIST->box,START,END,CALLBACK,LIST,value);
+	stream_reduce(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Boolean list_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET))
+Boolean List_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET))
 {
-	Boolean found;
+	Boolean found = false;
 	mutex_lock(LIST->mutex);
-	stream_search(Undefined,LIST->box,START,END,CALLBACK,LIST,TARGET,found);
+	stream_search(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST,TARGET,found);
 	mutex_unlock(LIST->mutex);
 	return found;
 };
 
-void list_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END)
+void List_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END)
 {
 	mutex_lock(TARGET_LIST->mutex);
 	mutex_lock(SOURCE_LIST->mutex);
-	box_merge(Undefined,TARGET_LIST->box,TARGET_INDEX,SOURCE_LIST->box,SOURCE_START,SOURCE_END);
+	block_merge(TARGET_LIST->exception,Undefined,TARGET_LIST->block,TARGET_INDEX,SOURCE_LIST->block,SOURCE_START,SOURCE_END);
 	mutex_unlock(SOURCE_LIST->mutex);
 	mutex_unlock(TARGET_LIST->mutex);
 };
 
-Undefined *list_getSource(List *LIST)
+Undefined *List_getSource(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	Undefined *source = box_getSource(LIST->box);
+	Undefined *source = block_getSource(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return source;
 };
 
-UnsignedSize list_getOffset(List *LIST)
+UnsignedSize List_getOffset(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	UnsignedSize offset = box_getOffset(LIST->box);
+	UnsignedSize offset = block_getOffset(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return offset;
 };
 
-UnsignedSize list_setSize(List *LIST,UnsignedSize SIZE)
+UnsignedSize List_setSize(List *LIST,UnsignedSize SIZE)
 {
 	UnsignedSize size;
 	mutex_lock(LIST->mutex);
-	box_setSize(Undefined,LIST->box,SIZE,size);
+	block_setSize(LIST->exception,Undefined,LIST->block,SIZE,size);
 	mutex_unlock(LIST->mutex);
 	return size;
 };
 
-UnsignedSize list_getSize(List *LIST)
+UnsignedSize List_getSize(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	UnsignedSize size = box_getSize(LIST->box);
+	UnsignedSize size = block_getSize(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return size;
 };
 
-Boolean list_isEmpty(List *LIST)
+Boolean List_isEmpty(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	Boolean empty = box_isEmpty(LIST->box);
+	Boolean empty = block_isEmpty(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return empty;
 };
 
-Boolean list_isNotEmpty(List *LIST)
+Boolean List_isNotEmpty(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	Boolean empty = box_isNotEmpty(LIST->box);
+	Boolean empty = block_isNotEmpty(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return empty;
 };
 
-UnsignedSize list_getCapacity(List *LIST)
+UnsignedSize List_getCapacity(List *LIST)
 {
 	mutex_lock(LIST->mutex);
-	UnsignedSize capacity = box_getCapacity(LIST->box);
+	UnsignedSize capacity = block_getCapacity(LIST->block);
 	mutex_unlock(LIST->mutex);
 	return capacity;
 };
 
-Boolean list_setLock(List *LIST,Boolean LOCK)
+Boolean List_setLock(List *LIST,Boolean LOCK)
 {
 	mutex_lock(LIST->mutex);
-	mutex_setLock(LIST->mutex,LOCK);
+	mutex_setLock(LIST->exception,LIST->mutex,LOCK);
 	mutex_unlock(LIST->mutex);
 	return !LOCK;
 };
 
-Boolean list_getLock(List *LIST)
+Boolean List_getLock(List *LIST)
 {
 	mutex_lock(LIST->mutex);
 	Boolean lock = mutex_getLock(LIST->mutex);
@@ -295,11 +297,20 @@ Boolean list_getLock(List *LIST)
 	return lock;
 };
 
-void list_debug(List *LIST,NullString LABEL)
+NullString List_getException(List *LIST)
+{
+	NullString message;
+	mutex_lock(LIST->mutex);
+	exception_catch(LIST->exception,message);
+	mutex_unlock(LIST->mutex);
+	return message;
+};
+
+void List_debug(List *LIST,NullString LABEL)
 {
 	mutex_lock(LIST->mutex);
-	printf("LIST { offset: %lli, size: %lli, capacity: %lli, source: [ ",box_getOffset(LIST->box),box_getSize(LIST->box),box_getCapacity(LIST->box));
-	for (UnsignedSize index = 0; index < box_getSize(LIST->box); ++index) printf("%lli ",box_getStart(LIST->box)[index].usize);
+	printf("LIST { offset: %lli, size: %lli, capacity: %lli, source: [ ",block_getOffset(LIST->block),block_getSize(LIST->block),block_getCapacity(LIST->block));
+	for (UnsignedSize index = 0; index < block_getSize(LIST->block); ++index) printf("%lli ",block_getStart(LIST->block)[index].unsignedSize);
 	printf("] } #%s\n",LABEL);
 	mutex_unlock(LIST->mutex);
 };

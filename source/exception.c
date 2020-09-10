@@ -1,184 +1,192 @@
-thread_local NullString ExceptionMessage;
+typedef struct
+{
+	NullString message;
+} Exception;
+
 thread_local UnsignedSize ExceptionBlock;
+thread_local Exception ExceptionGlobal;
 
-#routine exception_try()
+
+#routine exception_destroy(EXCEPTION)
 {
-	if (!ExceptionBlock) exception_throw(ExceptionMessage);
+	EXCEPTION.message = NULL;
 };
 
-#routine exception_throwBreak(MESSAGE)
-{
-	ExceptionMessage = MESSAGE;
-	break;
-};
-
-#routine exception_throwExit(MESSAGE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	return;
-};
-
-#routine exception_throwReturn(MESSAGE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	return 0;
-};
-
-#routine exception_throwReturnCast(MESSAGE,#TYPE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	return (TYPE) 0;
-};
-
-#routine exception_throwReturnValue(MESSAGE,VALUE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	return VALUE;
-};
-
-#routine exception_safeThrowExit(STRUCT,MESSAGE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	mutex_unlock(STRUCT->mutex);
-	return;
-};
-
-#routine exception_safeThrowReturn(STRUCT,MESSAGE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	mutex_unlock(STRUCT->mutex);
-	return 0;
-};
-
-#routine exception_safeThrowReturnCast(STRUCT,MESSAGE,#TYPE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	mutex_unlock(STRUCT->mutex);
-	return (TYPE) 0;
-};
-
-#routine exception_safeThrowReturnValue(STRUCT,MESSAGE,VALUE)
-{
-	ExceptionMessage = MESSAGE;
-	exception_try();
-	mutex_unlock(STRUCT->mutex);
-	return VALUE;
-};
-
-#routine exception_bypassBreak()
-{
-	if (ExceptionMessage) break;
-};
-
-#routine exception_bypassExit()
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		return;
-	};
-};
-
-#routine exception_bypassReturn()
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		return 0;
-	};
-};
-
-#routine exception_bypassReturnCast(#TYPE)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		return (TYPE) 0;
-	};
-};
-
-#routine exception_bypassReturnValue(VALUE)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		return VALUE;
-	};
-};
-
-#routine exception_safeBypassExit(STRUCT)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		mutex_unlock(STRUCT->mutex);
-		return;
-	};
-};
-
-#routine exception_safeBypassReturn(STRUCT)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		mutex_unlock(STRUCT->mutex);
-		return 0;
-	};
-};
-
-#routine exception_safeBypassReturnCast(STRUCT,#TYPE)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		mutex_unlock(STRUCT->mutex);
-		return (TYPE) 0;
-	};
-};
-
-#routine exception_safeBypassReturnValue(STRUCT,VALUE)
-{
-	if (ExceptionMessage)
-	{
-		exception_try();
-		mutex_unlock(STRUCT->mutex);
-		return VALUE;
-	};
-};
-
-void exception_start(void)
-{
-	ExceptionBlock += 1;
-};
-
-void exception_end(void)
-{
-	if (!ExceptionBlock) exception_throw("There is no exception block to end");
-	ExceptionBlock -= 1;
-};
-
-NullString exception_catch(void)
-{
-	NullString exception;
-	if (!(exception = ExceptionMessage)) return NULL;
-	ExceptionMessage = NULL;
-	return exception;
-};
-
-void exception_throw(NullString MESSAGE)
+#routine exception_panic(MESSAGE)
 {
 	printf("EXCEPTION: %s.\n",MESSAGE);
 	exit(EXIT_FAILURE);
 };
 
-void exception_debug(NullString MESSAGE)
+#routine exception_globalThrowBreak(MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	ExceptionGlobal.message = MESSAGE;
+	break;
+};
+
+#routine exception_globalThrowExit(MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	ExceptionGlobal.message = MESSAGE;
+	return;
+};
+
+#routine exception_globalThrowReturn(MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	ExceptionGlobal.message = MESSAGE;
+	return 0;
+};
+
+#routine exception_globalThrowReturnCast(MESSAGE,#TYPE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	ExceptionGlobal.message = MESSAGE;
+	return (TYPE) 0;
+};
+
+#routine exception_globalThrowReturnValue(MESSAGE,VALUE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	ExceptionGlobal.message = MESSAGE;
+	return VALUE;
+};
+
+#routine exception_globalBypassBreak()
+{
+	if (ExceptionGlobal.message) break;
+};
+
+#routine exception_globalBypassExit()
+{
+	if (ExceptionGlobal.message) return;
+};
+
+#routine exception_globalBypassReturn()
+{
+	if (ExceptionGlobal.message) return 0;
+};
+
+#routine exception_globalBypassReturnCast(#TYPE)
+{
+	if (ExceptionGlobal.message) return (TYPE) 0;
+};
+
+#routine exception_globalBypassReturnValue(VALUE)
+{
+	if (ExceptionGlobal.message) return VALUE;
+};
+
+#routine exception_structThrowExit(EXCEPTION,STRUCT,MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	EXCEPTION.message = MESSAGE;
+	mutex_unlock(STRUCT->mutex);
+	return;
+};
+
+#routine exception_structThrowReturn(EXCEPTION,STRUCT,MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	EXCEPTION.message = MESSAGE;
+	mutex_unlock(STRUCT->mutex);
+	return 0;
+};
+
+#routine exception_structThrowReturnCast(EXCEPTION,STRUCT,MESSAGE,#TYPE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	EXCEPTION.message = MESSAGE;
+	mutex_unlock(STRUCT->mutex);
+	return (TYPE) 0;
+};
+
+#routine exception_structThrowReturnValue(EXCEPTION,STRUCT,MESSAGE,VALUE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	EXCEPTION.message = MESSAGE;
+	mutex_unlock(STRUCT->mutex);
+	return VALUE;
+};
+
+#routine exception_structBypassExit(EXCEPTION,STRUCT)
+{
+	if (EXCEPTION.message)
+	{
+		mutex_unlock(STRUCT->mutex);
+		return;
+	};
+};
+
+#routine exception_structBypassReturn(EXCEPTION,STRUCT)
+{
+	if (EXCEPTION.message)
+	{
+		mutex_unlock(STRUCT->mutex);
+		return 0;
+	};
+};
+
+#routine exception_structBypassReturnCast(EXCEPTION,STRUCT,#TYPE)
+{
+	if (EXCEPTION.message)
+	{
+		mutex_unlock(STRUCT->mutex);
+		return (TYPE) 0;
+	};
+};
+
+#routine exception_structBypassReturnValue(EXCEPTION,STRUCT,VALUE)
+{
+	if (EXCEPTION.message)
+	{
+		mutex_unlock(STRUCT->mutex);
+		return VALUE;
+	};
+};
+
+#routine exception_routineThrow(EXCEPTION,MESSAGE)
+{
+	if (!ExceptionBlock) exception_panic(MESSAGE);
+	EXCEPTION.message = MESSAGE;
+	break;
+};
+
+#routine exception_routineBypass(EXCEPTION)
+{
+	if (EXCEPTION.message) break;
+};
+
+#routine exception_catch(EXCEPTION,RETURN)
+{
+	if ((RETURN = EXCEPTION.message)) EXCEPTION.message = NULL;
+};
+
+void Exception_start(void)
+{
+	ExceptionBlock += 1;
+};
+
+void Exception_end(void)
+{
+	if (!ExceptionBlock) exception_panic("There is no exception block to end");
+	ExceptionBlock -= 1;
+};
+
+NullString Exception_catch(void)
+{
+	NullString message;
+	exception_catch(ExceptionGlobal,message);
+	return message;
+};
+
+void Exception_throw(NullString MESSAGE)
+{
+	exception_panic(MESSAGE);
+};
+
+void Exception_debug(NullString MESSAGE)
 {
 	printf("EXCEPTION: %s.\n",MESSAGE);
 };
