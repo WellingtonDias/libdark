@@ -6,7 +6,6 @@ typedef struct
 thread_local UnsignedSize ExceptionBlock;
 thread_local Exception ExceptionGlobal;
 
-
 #routine exception_destroy(EXCEPTION)
 {
 	EXCEPTION.message = NULL;

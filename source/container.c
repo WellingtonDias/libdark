@@ -42,34 +42,32 @@ Container *Container_createFromMemory(Pointer POINTER,UnsignedSize SIZE)
 	return container;
 };
 
-// container *Container_createFromDisk(NullString PATH);
-// {
-// 	FILE *file;
-// 	SignedSize size;
-// 	Container *container = NULL;
-// 	if (!(file = fopen(PATH,"rb"))) exception_globalThrowReturn("FILE: open");
-// 	if (fseek(file,0,SEEK_END) != 0) exception_globalThrowReturn("FILE: seek");
-// 	if ((size = ftell(file)) == -1) exception_globalThrowReturn("FILE: tell");
-// 	if (size > 0)
-// 	{
-// 		if (!(container = malloc(sizeof(Container)))) exception_globalThrowReturn("MEMORY: malloc");
-// 		if (!(container->pointer = malloc(size))) exception_globalThrowReturn("MEMORY: malloc");
-// 		if (fseek(file,0,SEEK_SET) != 0) exception_globalThrowReturn("FILE: seek");
-// 		if (fread(container->pointer,1,size,file) != size) exception_globalThrowReturn("FILE: read");
-// 		container->size = size;
-// 	};
-// 	if (fclose(file) != 0) exception_globalThrowReturn("FILE: close");
-// 	return container;
-// };
+container *Container_createFromDisk(NullString PATH);
+{
+	Container *container;
+	FILE *file;
+	SignedSize size;
+	if (!(file = fopen(PATH,"rb"))) exception_globalThrowReturn("FILE: open");
+	if (fseek(file,0,SEEK_END) != 0) exception_globalThrowReturn("FILE: seek");
+	if ((size = ftell(file)) == -1) exception_globalThrowReturn("FILE: tell");
+	if (size == 0) exception_globalThrowReturn("invalid PATH");
+	if (!(container = malloc(sizeof(Container)))) exception_globalThrowReturn("MEMORY: malloc");
+	if (!(container->pointer = malloc(size))) exception_globalThrowReturn("MEMORY: malloc");
+	if (fseek(file,0,SEEK_SET) != 0) exception_globalThrowReturn("FILE: seek");
+	if (fread(container->pointer,1,size,file) != size) exception_globalThrowReturn("FILE: read");
+	container->size = size;
+	if (fclose(file) != 0) exception_globalThrowReturn("FILE: close");
+	return container;
+};
 
-// void Container_saveToDisk(Container *CONTAINER,NullString PATH)
-// {
-// 	FILE *file;
-// 	if (CONTAINER->pointer == NULL) exception_throwExit("invalid CONTAINER");
-// 	if (!(file = fopen(PATH,"wb"))) exception_throwExit("FILE: open");
-// 	if (fwrite(CONTAINER->pointer,1,CONTAINER->size,file) != CONTAINER->size) exception_throwExit("FILE: write");
-// 	if (fclose(file) != 0) exception_throwExit("FILE: close");
-// };
+void Container_saveToDisk(Container *CONTAINER,NullString PATH)
+{
+	FILE *file;
+	if (CONTAINER->pointer == NULL) exception_globalThrowExit("invalid CONTAINER");
+	if (!(file = fopen(PATH,"wb"))) exception_globalThrowExit("FILE: open");
+	if (fwrite(CONTAINER->pointer,1,CONTAINER->size,file) != CONTAINER->size) exception_globalThrowExit("FILE: write");
+	if (fclose(file) != 0) exception_globalThrowExit("FILE: close");
+};
 
 Container *Container_destroy(Container *CONTAINER)
 {
