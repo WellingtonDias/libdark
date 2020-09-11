@@ -64,3 +64,8 @@ UnsignedSize Container_getSize(Container *CONTAINER)
 	if (CONTAINER->pointer == NULL) exception_globalThrowReturn("invalid CONTAINER");
 	return CONTAINER->size;
 };
+
+void Container_debug(Container *CONTAINER,NullString MESSAGE)
+{
+	printf("CONTAINER { pointer: %p, size: %lli } #%s\n",CONTAINER->pointer,CONTAINER->size,MESSAGE);
+};
