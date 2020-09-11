@@ -17,6 +17,11 @@ thread_local Exception ExceptionGlobal;
 	exit(EXIT_FAILURE);
 };
 
+#routine exception_catch(EXCEPTION,RETURN)
+{
+	if ((RETURN = EXCEPTION.message)) EXCEPTION.message = NULL;
+};
+
 #routine exception_globalThrowBreak(MESSAGE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
@@ -77,68 +82,68 @@ thread_local Exception ExceptionGlobal;
 	if (ExceptionGlobal.message) return VALUE;
 };
 
-#routine exception_structThrowExit(EXCEPTION,STRUCT,MESSAGE)
+#routine exception_structThrowExit(STRUCT,MESSAGE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
-	EXCEPTION.message = MESSAGE;
+	STRUCT->exception.message = MESSAGE;
 	mutex_unlock(STRUCT->mutex);
 	return;
 };
 
-#routine exception_structThrowReturn(EXCEPTION,STRUCT,MESSAGE)
+#routine exception_structThrowReturn(STRUCT,MESSAGE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
-	EXCEPTION.message = MESSAGE;
+	STRUCT->exception.message = MESSAGE;
 	mutex_unlock(STRUCT->mutex);
 	return 0;
 };
 
-#routine exception_structThrowReturnCast(EXCEPTION,STRUCT,MESSAGE,#TYPE)
+#routine exception_structThrowReturnCast(STRUCT,MESSAGE,#TYPE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
-	EXCEPTION.message = MESSAGE;
+	STRUCT->exception.message = MESSAGE;
 	mutex_unlock(STRUCT->mutex);
 	return (TYPE) 0;
 };
 
-#routine exception_structThrowReturnValue(EXCEPTION,STRUCT,MESSAGE,VALUE)
+#routine exception_structThrowReturnValue(STRUCT,MESSAGE,VALUE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
-	EXCEPTION.message = MESSAGE;
+	STRUCT->exception.message = MESSAGE;
 	mutex_unlock(STRUCT->mutex);
 	return VALUE;
 };
 
-#routine exception_structBypassExit(EXCEPTION,STRUCT)
+#routine exception_structBypassExit(STRUCT)
 {
-	if (EXCEPTION.message)
+	if (STRUCT->exception.message)
 	{
 		mutex_unlock(STRUCT->mutex);
 		return;
 	};
 };
 
-#routine exception_structBypassReturn(EXCEPTION,STRUCT)
+#routine exception_structBypassReturn(STRUCT)
 {
-	if (EXCEPTION.message)
+	if (STRUCT->exception.message)
 	{
 		mutex_unlock(STRUCT->mutex);
 		return 0;
 	};
 };
 
-#routine exception_structBypassReturnCast(EXCEPTION,STRUCT,#TYPE)
+#routine exception_structBypassReturnCast(STRUCT,#TYPE)
 {
-	if (EXCEPTION.message)
+	if (STRUCT->exception.message)
 	{
 		mutex_unlock(STRUCT->mutex);
 		return (TYPE) 0;
 	};
 };
 
-#routine exception_structBypassReturnValue(EXCEPTION,STRUCT,VALUE)
+#routine exception_structBypassReturnValue(STRUCT,VALUE)
 {
-	if (EXCEPTION.message)
+	if (STRUCT->exception.message)
 	{
 		mutex_unlock(STRUCT->mutex);
 		return VALUE;
@@ -157,11 +162,6 @@ thread_local Exception ExceptionGlobal;
 	if (EXCEPTION.message) break;
 };
 
-#routine exception_catch(EXCEPTION,RETURN)
-{
-	if ((RETURN = EXCEPTION.message)) EXCEPTION.message = NULL;
-};
-
 void Exception_start(void)
 {
 	ExceptionBlock += 1;
@@ -173,16 +173,16 @@ void Exception_end(void)
 	ExceptionBlock -= 1;
 };
 
+void Exception_throw(NullString MESSAGE)
+{
+	exception_panic(MESSAGE);
+};
+
 NullString Exception_catch(void)
 {
 	NullString message;
 	exception_catch(ExceptionGlobal,message);
 	return message;
-};
-
-void Exception_throw(NullString MESSAGE)
-{
-	exception_panic(MESSAGE);
 };
 
 void Exception_debug(NullString MESSAGE)

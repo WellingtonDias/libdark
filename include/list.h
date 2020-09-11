@@ -1,9 +1,6 @@
 // List
 List *List_create(void);
-List *List_createFromContainer(Container *CONTAINER);
-List *List_createFromMemory(Container *CONTAINER,SignedSize START,SignedSize END);
-List *List_createFromCopy(List *LIST,SignedSize START,SignedSize END);
-List *List_destroy(List *LIST,Boolean SOURCE);
+List *List_destroy(List *LIST);
 
 void List_trim(List *LIST);
 void List_clear(List *LIST);
@@ -33,10 +30,10 @@ Boolean List_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,
 
 void List_merge(List *TARGET_LIST,SignedSize TARGET_INDEX,List *SOURCE_LIST,SignedSize SOURCE_START,SignedSize SOURCE_END);
 
-Undefined *List_getSource(List *LIST);
+Undefined *List_getPointer(List *LIST);
 UnsignedSize List_getOffset(List *LIST);
-UnsignedSize List_setSize(List *LIST,UnsignedSize SIZE);
-UnsignedSize List_getSize(List *LIST);
+UnsignedSize List_setLength(List *LIST,UnsignedSize LENGTH);
+UnsignedSize List_getLength(List *LIST);
 Boolean List_isEmpty(List *LIST);
 Boolean List_isNotEmpty(List *LIST);
 UnsignedSize List_getCapacity(List *LIST);
@@ -44,7 +41,7 @@ Boolean List_setLock(List *LIST,Boolean LOCK);
 Boolean List_getLock(List *LIST);
 NullString List_getException(List *LIST);
 
-void List_debug(List *LIST,NullString LABEL);
+void List_debug(List *LIST,NullString MESSAGE);
 
 #define List_enqueue List_append
 #define List_push    List_append

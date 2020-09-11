@@ -16,13 +16,12 @@
 #define DARK_FLOAT_64      13
 #define DARK_CHARACTER     14
 #define DARK_NULL_STRING   15
-#define DARK_RAW_STRING    16
-#define DARK_STRING        17
-#define DARK_BLOB          18
-#define DARK_LIST          19
-#define DARK_MAP           20
-#define DARK_CONTAINER     21
-#define DARK_POINTER       22
+#define DARK_STRING        16
+#define DARK_BLOB          17
+#define DARK_LIST          18
+#define DARK_MAP           19
+#define DARK_CONTAINER     20
+#define DARK_POINTER       21
 
 #define Boolean      bool
 #define Unsigned8    unsigned char
@@ -39,7 +38,6 @@
 #define Float64      double
 #define Character    char
 #define NullString   char*
-#define RawString    char*
 #define Pointer      void*
 
 typedef struct _String    String;
@@ -65,7 +63,6 @@ typedef union
 	Float64      float64;
 	Character    character;
 	NullString   nullString;
-	RawString    rawString;
 	String*      string;
 	Blob*        blob;
 	List*        list;
