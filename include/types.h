@@ -76,3 +76,11 @@ typedef struct
 	Unsigned8 type;
 	Undefined value;
 } Defined;
+
+typedef Undefined (*ListMapFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE);
+typedef Boolean (*ListFilterFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE);
+typedef Undefined (*ListReduceFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR);
+typedef Boolean (*ListSearchFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET);
+
+typedef UnsignedSize (*MapHashFunction)(Undefined KEY,UnsignedSize HASH_SIZE);
+typedef Boolean (*MapDiffFunction)(Undefined TARGET,Undefined SOURCE);

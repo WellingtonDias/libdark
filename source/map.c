@@ -1,50 +1,54 @@
 typedef struct
 {
-	NullString key;
-	Undefined  value;
+	Undefined key;
+	Undefined value;
 } Pair;
 
 block_define(Block_pair,Pair);
 
 struct _Map
 {
-	UnsignedSize hashSize;
-	UnsignedSize length;
-	Block_pair*  block;
-	Mutex        mutex;
-	Exception    exception;
+	UnsignedSize    hashSize;
+	MapHashFunction hashFunction;
+	MapDiffFunction diffFunction;
+	UnsignedSize    length;
+	Block_pair*     block;
+	Mutex           mutex;
+	Exception       exception;
 };
 
-#routine key_hash(KEY,LENGTH,HASH_SIZE,RETURN)
+#routine key_hash(MAP,KEY,HASH_SIZE,RETURN)
 {
-	#local UnsignedSize i;
-	#local UnsignedSize sum;
-	for (; (i < LENGTH) && (i < 8); ++i) sum += KEY[i];
-	RETURN = sum % HASH_SIZE;
+	if (!MAP->hashFunction) RETURN = KEY.unsignedSize % HASH_SIZE;
+	else RETURN = (*MAP->hashFunction)(KEY,HASH_SIZE);
 };
 
-#routine key_search(MAP,KEY,LENGTH,RETURN1,RETURN2,RETURN3)
+#routine key_diff(MAP,KEY,RETURN1,RETURN2,RETURN3)
 {
-	key_hash(KEY,LENGTH,MAP->hashSize,RETURN1);
+	key_hash(MAP,KEY,MAP->hashSize,RETURN1);
 	for (RETURN2 = 0; RETURN2 < block_getLength(MAP->block[RETURN1]); ++RETURN2)
 	{
-		if (strcmp(KEY,block_getStart(MAP->block[RETURN1])[RETURN2].key) == 0) break;
+		if (!MAP->diffFunction)
+		{
+			if (KEY.unsignedSize == block_getStart(MAP->block[RETURN1])[RETURN2].key.unsignedSize) break;
+		}
+		else
+		{
+			if ((*MAP->diffFunction)(KEY,block_getStart(MAP->block[RETURN1])[RETURN2].key)) break;
+		};
 	};
 	RETURN3 = RETURN2 < block_getLength(MAP->block[RETURN1]);
 };
 
-#routine pair_insert(MAP,HASH,KEY,LENGTH,VALUE)
+#routine pair_insert(MAP,HASH,KEY,VALUE)
 {
 	Pair pair;
-	NullString key;
-	if (!(key = malloc(LENGTH + 1))) exception_routineThrow(MAP->exception,"MEMORY: malloc");
-	memcpy(key,KEY,LENGTH + 1);
-	pair.key = key;
+	pair.key = KEY;
 	pair.value = VALUE;
 	stream_insertAtEnd(MAP->exception,Pair,MAP->block[HASH],pair);
 };
 
-Map *Map_create(UnsignedSize HASH_SIZE)
+Map *Map_create(UnsignedSize HASH_SIZE,MapHashFunction HASH_FUNCTION,MapDiffFunction DIFF_FUNCTION)
 {
 	Map *map;
 	if (HASH_SIZE == 0) exception_globalThrowReturnCast("invalid HASH_SIZE",Map*);
@@ -57,6 +61,8 @@ Map *Map_create(UnsignedSize HASH_SIZE)
 		exception_globalBypassReturnCast(Map*);
 	};
 	map->hashSize = HASH_SIZE;
+	map->hashFunction = HASH_FUNCTION;
+	map->diffFunction = DIFF_FUNCTION;
 	map->length = 0;
 	return map;
 };
@@ -69,6 +75,13 @@ Map *Map_destroy(Map *MAP)
 	exception_destroy(MAP->exception);
 	free(MAP);
 	return NULL;
+};
+
+void Map_trim(Map *MAP)
+{
+	mutex_lock(MAP->mutex);
+	for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash) block_trim(MAP->exception,Pair,MAP->block[hash]);
+	mutex_unlock(MAP->mutex);
 };
 
 void Map_clear(Map *MAP)
@@ -97,19 +110,87 @@ Boolean Map_compare(Map *MAP1,Map *MAP2)
 	return comparison;
 };
 
-void Map_insert(Map *MAP,NullString KEY,Undefined VALUE)
+void Map_insert(Map *MAP,Undefined KEY,Undefined VALUE)
 {
 	Boolean found;
 	UnsignedSize hash;
 	UnsignedSize index;
 	mutex_lock(MAP->mutex);
-	UnsignedSize length = strlen(KEY);
-	key_search(MAP,KEY,length,hash,index,found);
+	key_diff(MAP,KEY,hash,index,found);
 	if (found) exception_structThrowExit(MAP,"invalid KEY");
-	pair_insert(MAP,hash,KEY,length,VALUE);
+	pair_insert(MAP,hash,KEY,VALUE);
 	exception_structBypassExit(MAP);
 	++MAP->length;
 	mutex_unlock(MAP->mutex);
+};
+
+Undefined Map_replace(Map *MAP,Undefined KEY,Undefined VALUE)
+{
+	Boolean found;
+	UnsignedSize hash;
+	UnsignedSize index;
+	mutex_lock(MAP->mutex);
+	key_diff(MAP,KEY,hash,index,found);
+	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
+	Undefined value = block_getStart(MAP->block[hash])[index].value;
+	block_getStart(MAP->block[hash])[index].value = VALUE;
+	mutex_unlock(MAP->mutex);
+	return value;
+};
+
+Undefined Map_set(Map *MAP,Undefined KEY,Undefined VALUE)
+{
+	Undefined value;
+	Boolean found;
+	UnsignedSize hash;
+	UnsignedSize index;
+	mutex_lock(MAP->mutex);
+	key_diff(MAP,KEY,hash,index,found);
+	if (found)
+	{
+		value = block_getStart(MAP->block[hash])[index].value;
+		block_getStart(MAP->block[hash])[index].value = VALUE;
+	}
+	else
+	{
+		pair_insert(MAP,hash,KEY,VALUE);
+		exception_structBypassReturnCast(MAP,Undefined);
+		++MAP->length;
+		value = (Undefined) 0;
+	};
+	mutex_unlock(MAP->mutex);
+	return value;
+};
+
+Undefined Map_get(Map *MAP,Undefined KEY)
+{
+	Boolean found;
+	UnsignedSize hash;
+	UnsignedSize index;
+	mutex_lock(MAP->mutex);
+	key_diff(MAP,KEY,hash,index,found);
+	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
+	Undefined value = block_getStart(MAP->block[hash])[index].value;
+	mutex_unlock(MAP->mutex);
+	return value;
+};
+
+Undefined Map_remove(Map *MAP,Undefined KEY)
+{
+	Boolean found;
+	UnsignedSize hash;
+	UnsignedSize index;
+	mutex_lock(MAP->mutex);
+	key_diff(MAP,KEY,hash,index,found);
+	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
+	--block_getLength(MAP->block[hash]);
+	Undefined value = block_getStart(MAP->block[hash])[index].value;
+	if (index < block_getLength(MAP->block[hash])) memcpy(block_getStart(MAP->block[hash]) + index,block_getStart(MAP->block[hash]) + index + 1,(block_getLength(MAP->block[hash]) - index) * sizeof(Pair));
+	block_adjustCapacity(MAP->exception,Pair,MAP->block[hash],block_getLength(MAP->block[hash]));
+	exception_structBypassReturnCast(MAP,Undefined);
+	--MAP->length;
+	mutex_unlock(MAP->mutex);
+	return value;
 };
 
 UnsignedSize Map_getHashSize(Map *MAP)
@@ -178,7 +259,7 @@ void Map_debug(Map *MAP,NullString MESSAGE)
 	{
 		for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash)
 		{
-			for (UnsignedSize index = 0; index < block_getLength(MAP->block[hash]); ++index) printf("%s=%lli ",block_getStart(MAP->block[hash])[index].key,block_getStart(MAP->block[hash])[index].value.unsignedSize);
+			for (UnsignedSize index = 0; index < block_getLength(MAP->block[hash]); ++index) printf("%lli=%lli ",block_getStart(MAP->block[hash])[index].key.unsignedSize,block_getStart(MAP->block[hash])[index].value.unsignedSize);
 		};
 	};
 	printf("} } #%s\n",MESSAGE);

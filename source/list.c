@@ -161,34 +161,34 @@ void List_reverse(List *LIST,SignedSize START,SignedSize END)
 	mutex_unlock(LIST->mutex);
 };
 
-void List_map(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+void List_map(List *LIST,SignedSize START,SignedSize END,ListMapFunction FUNCTION)
 {
 	mutex_lock(LIST->mutex);
-	stream_map(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST);
+	stream_map(LIST->exception,Undefined,LIST->block,START,END,FUNCTION,LIST);
 	mutex_unlock(LIST->mutex);
 };
 
-void List_filter(List *LIST,SignedSize START,SignedSize END,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE))
+void List_filter(List *LIST,SignedSize START,SignedSize END,ListFilterFunction FUNCTION)
 {
 	mutex_lock(LIST->mutex);
-	stream_filter(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST);
+	stream_filter(LIST->exception,Undefined,LIST->block,START,END,FUNCTION,LIST);
 	mutex_unlock(LIST->mutex);
 };
 
-Undefined List_reduce(List *LIST,SignedSize START,SignedSize END,Undefined (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR))
+Undefined List_reduce(List *LIST,SignedSize START,SignedSize END,ListReduceFunction FUNCTION)
 {
 	Undefined value = (Undefined) 0;
 	mutex_lock(LIST->mutex);
-	stream_reduce(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST,value);
+	stream_reduce(LIST->exception,Undefined,LIST->block,START,END,FUNCTION,LIST,value);
 	mutex_unlock(LIST->mutex);
 	return value;
 };
 
-Boolean List_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,Boolean (*CALLBACK)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET))
+Boolean List_search(List *LIST,SignedSize START,SignedSize END,Undefined TARGET,ListSearchFunction FUNCTION)
 {
 	Boolean found = false;
 	mutex_lock(LIST->mutex);
-	stream_search(LIST->exception,Undefined,LIST->block,START,END,CALLBACK,LIST,TARGET,found);
+	stream_search(LIST->exception,Undefined,LIST->block,START,END,FUNCTION,LIST,TARGET,found);
 	mutex_unlock(LIST->mutex);
 	return found;
 };
