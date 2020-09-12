@@ -52,18 +52,16 @@ void test2()
 	List *list = List_create();
 
 	clock_t time = clock();
-	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_append(list,(Undefined) i);
+	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_append(list,(Undefined) i);
 	printf("append: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
 
 	time = clock();
-	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_dequeue(list);
+	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_dequeue(list);
 	printf("dequeue: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
 
 	time = clock();
-	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_prepend(list,(Undefined) i);
+	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_prepend(list,(Undefined) i);
 	printf("prepend: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
-
-	while (true) {};
 
 	list = List_destroy(list);
 };

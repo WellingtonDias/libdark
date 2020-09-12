@@ -113,20 +113,25 @@
 	(BLOCK1.length == BLOCK2.length) && (memcmp(BLOCK1.start,BLOCK2.start,BLOCK1.length * sizeof(TYPE)) == 0)
 };
 
+#routine block_unsafeMerge(EXCEPTION,#TYPE,TARGET_BLOCK,TARGET_INDEX,SOURCE_BLOCK,SOURCE_INDEX,SOURCE_LENGTH)
+{
+	block_adjustCapacity(EXCEPTION,TYPE,TARGET_BLOCK,TARGET_BLOCK.length + SOURCE_LENGTH);
+	exception_routineBypass(EXCEPTION);
+	if (TARGET_INDEX < TARGET_BLOCK.length) memmove(TARGET_BLOCK.start + TARGET_INDEX + SOURCE_LENGTH,TARGET_BLOCK.start + TARGET_INDEX,(TARGET_BLOCK.length - TARGET_INDEX) * sizeof(TYPE));
+	memcpy(TARGET_BLOCK.start + TARGET_INDEX,SOURCE_BLOCK.start + SOURCE_INDEX,SOURCE_LENGTH * sizeof(TYPE));
+	TARGET_BLOCK.length += SOURCE_LENGTH;
+};
+
 #routine block_merge(EXCEPTION,#TYPE,TARGET_BLOCK,TARGET_INDEX,SOURCE_BLOCK,SOURCE_START,SOURCE_END)
 {
 	#local UnsignedSize targetIndex;
-	#local UnsignedSize pointerIndex;
+	#local UnsignedSize sourceIndex;
 	#local UnsignedSize length;
 	block_calculateSafeIndex(EXCEPTION,TARGET_INDEX,TARGET_BLOCK.length + 1,targetIndex);
-	block_calculateRange(EXCEPTION,SOURCE_START,SOURCE_END,SOURCE_BLOCK.length,pointerIndex,length);
+	block_calculateRange(EXCEPTION,SOURCE_START,SOURCE_END,SOURCE_BLOCK.length,sourceIndex,length);
 	exception_routineBypass(EXCEPTION);
-	length = length - pointerIndex + 1;
-	block_adjustCapacity(EXCEPTION,TYPE,TARGET_BLOCK,TARGET_BLOCK.length + length);
-	exception_routineBypass(EXCEPTION);
-	if (targetIndex < TARGET_BLOCK.length) memmove(TARGET_BLOCK.start + targetIndex + length,TARGET_BLOCK.start + targetIndex,(TARGET_BLOCK.length - targetIndex) * sizeof(TYPE));
-	memcpy(TARGET_BLOCK.start + targetIndex,SOURCE_BLOCK.start + pointerIndex,length * sizeof(TYPE));
-	TARGET_BLOCK.length += length;
+	length = length - sourceIndex + 1;
+	block_unsafeMerge(EXCEPTION,TYPE,TARGET_BLOCK,targetIndex,SOURCE_BLOCK,sourceIndex,length);
 };
 
 #macro block_getPointer(BLOCK)

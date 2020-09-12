@@ -177,20 +177,17 @@ Undefined Map_get(Map *MAP,Undefined KEY)
 
 Undefined Map_remove(Map *MAP,Undefined KEY)
 {
+	Pair value;
 	Boolean found;
 	UnsignedSize hash;
 	UnsignedSize index;
 	mutex_lock(MAP->mutex);
 	key_diff(MAP,KEY,hash,index,found);
 	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
-	--block_getLength(MAP->block[hash]);
-	Undefined value = block_getStart(MAP->block[hash])[index].value;
-	if (index < block_getLength(MAP->block[hash])) memcpy(block_getStart(MAP->block[hash]) + index,block_getStart(MAP->block[hash]) + index + 1,(block_getLength(MAP->block[hash]) - index) * sizeof(Pair));
-	block_adjustCapacity(MAP->exception,Pair,MAP->block[hash],block_getLength(MAP->block[hash]));
-	exception_structBypassReturnCast(MAP,Undefined);
+	stream_unsafeRemove(MAP->exception,Pair,MAP->block[hash],index,value);
 	--MAP->length;
 	mutex_unlock(MAP->mutex);
-	return value;
+	return value.value;
 };
 
 UnsignedSize Map_getHashSize(Map *MAP)
