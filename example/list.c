@@ -3,137 +3,80 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Undefined map(List *LIST,UnsignedSize INDEX,Undefined VALUE)
-// {
-// 	return (Undefined) (VALUE.unsignedSize + 10);
-// };
-
-// Boolean filter(List *LIST,UnsignedSize INDEX,Undefined VALUE)
-// {
-// 	return VALUE.unsignedSize > 20;
-// };
-
-// Undefined reduce(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR)
-// {
-// 	return (Undefined) (ACCUMULATOR.unsignedSize + VALUE.unsignedSize);
-// };
-
-// Boolean search(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET)
-// {
-// 	return VALUE.unsignedSize == TARGET.unsignedSize;
-// };
-
-// void test1()
-// {
-// 	List *list = List_create();
-// 	for (UnsignedSize i = 0; i < 32; ++i) List_append(list,(Undefined) (5 + i));
-// 	List_debug(list,"original");
-// 	List_map(list,0,5,&map);
-// 	List_debug(list,"mapped");
-// 	List_filter(list,0,5,&filter);
-// 	List_debug(list,"filtered");
-// 	List_reverse(list,2,-3);
-// 	List_debug(list,"reverse");
-// 	List_shuffle(list,0,5);
-// 	List_debug(list,"shuffle");
-// 	Exception_start();
-// 		List_replace(list,56,(Undefined) 45);
-// 		Exception_debug(List_getException(list));
-// 	Exception_end();
-// 	UnsignedSize reduced = List_reduce(list,0,5,&reduce).unsignedSize;
-// 	printf("REDUCED: %lli\n",reduced);
-// 	Boolean found = List_search(list,0,5,(Undefined) 34,&search);
-// 	printf("FOUND: %lli\n",(UnsignedSize) found);
-// 	list = List_destroy(list);
-// };
-
-void test2()
+void operations(void)
 {
-	List *list = List_create();
+	printf("OPERANTIONS\n");
+
+	List *list1 = List_create(NULL);
+	for (UnsignedSize i = 0; i <= 3; ++i) List_append(list1,(Undefined) i);
+	List_debug(list1,"list1: append");
+	for (UnsignedSize i = 4; i <= 7; ++i) List_insert(list1,2,(Undefined) i);
+	List_debug(list1,"list1: insert(index=2)");
+	for (UnsignedSize i = 8; i <= 11; ++i) List_prepend(list1,(Undefined) i);
+	List_debug(list1,"list1: prepend");
+	List_replace(list1,5,(Undefined) 255);
+	List_debug(list1,"list1: replace(index=5)");
+	List_set(list1,15,(Undefined) 127);
+	List_debug(list1,"list1: set(index=15)");
+
+	List *list2 = List_clone(list1);
+	List_debug(list2,"list2: clone");
+	printf("list2: getIndex(value=255): %llu\n",List_getIndex(list2,(Undefined) 255));
+	printf("list2: getValue(index=5): %lli\n",List_getValue(list2,5).unsignedSize);
+	printf("list2: getFront: %lli\n",List_getFront(list2).unsignedSize);
+	printf("list2: getRear: %lli\n",List_getRear(list2).unsignedSize);
+	List_remove(list2,5);
+	List_debug(list2,"list2: remove(index=5)");
+	List_dequeue(list2);
+	List_debug(list2,"list2: dequeue");
+	List_pop(list2);
+	List_debug(list2,"list2: pop");
+	List_swap(list2,0,-1);
+	List_debug(list2,"list2: swap(index1=0 index2=-1)");
+	List_setLength(list2,5);
+	List_debug(list2,"list2: setLength(length=5)");
+
+	List_merge(list1,5,list2);
+	List_debug(list1,"list1: merge(index=5)");
+	List_trim(list2);
+	List_debug(list2,"list2: trim");
+	List_clip(list1,5,-6);
+	List_debug(list1,"list1: clip(start=5 end=-6)");
+
+	printf("\n");
+
+	list1 = List_destroy(list1);
+	list2 = List_destroy(list2);
+};
+
+void benchmark(Boolean LOCK)
+{
+	printf("BENCHMARK(lock=%d)\n",LOCK);
+
+	List *list = List_create(NULL);
+	if (LOCK) List_setMutex(list,true);
 
 	clock_t time = clock();
-	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_append(list,(Undefined) i);
+	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_append(list,(Undefined) i);
 	printf("append: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
 
 	time = clock();
-	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_dequeue(list);
+	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_dequeue(list);
 	printf("dequeue: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
 
 	time = clock();
-	for (UnsignedSize i = 0; i < 1024 * 1024; ++i) List_prepend(list,(Undefined) i);
+	for (UnsignedSize i = 0; i < 256 * 1024 * 1024; ++i) List_prepend(list,(Undefined) i);
 	printf("prepend: %lf\n",(Float64) (clock() - time) / CLOCKS_PER_SEC);
+
+	printf("\n");
 
 	list = List_destroy(list);
 };
 
 int main(void)
 {
-// 	List *list1 = List_create();
-// 	List_debug(list1,"create");
-// 	for (UnsignedSize i = 0; i < 4; ++i) List_prepend(list1,(Undefined) (i + 35));
-// 	List_debug(list1,"prepend");
-// 	for (UnsignedSize i = 0; i < 4; ++i) List_insert(list1,1,(Undefined) (i + 54));
-// 	List_debug(list1,"insert");
-// 	for (UnsignedSize i = 0; i < 4; ++i) List_append(list1,(Undefined) (i + 19));
-// 	List_debug(list1,"append");
-// 	List_replace(list1,1,(Undefined) 99);
-// 	List_debug(list1,"replace");
-// 	List_swap(list1,5,4);
-// 	List_debug(list1,"swap");
-// 	List_set(list1,4,(Undefined) 127);
-// 	List_debug(list1,"set");
-// 	List_set(list1,20,(Undefined) 99);
-// 	List_debug(list1,"set");
-// 	printf("INDEX: %lli\n",List_get(list1,2).unsignedSize);
-// 	printf("FRONT: %lli\n",List_getFront(list1).unsignedSize);
-// 	printf("REAR: %lli\n",List_getRear(list1).unsignedSize);
-// 	List_trim(list1);
-
-// 	List *list2 = List_createFromCopy(list1,1,-2);
-// 	List_debug(list2,"createFromCopy");
-// 	List_merge(list2,15,list1,4,-11);
-// 	List_debug(list2,"merge");
-
-// 	List *list3 = List_createFromCopy(list2,1,7);
-// 	List_debug(list3,"List_createFromCopy");
-// 	List_dequeue(list3);
-// 	List_debug(list3,"dequeue");
-// 	List_remove(list3,2);
-// 	List_debug(list3,"remove");
-// 	List_pop(list3);
-// 	List_debug(list3,"pop");
-// 	printf("LENGTH: %lli\n",List_getLength(list3));
-// 	List_clear(list3);
-// 	List_debug(list3,"clear");
-// 	printf("EMPTY: %lli\n",(UnsignedSize) List_isEmpty(list3));
-// 	printf("NOT EMPTY: %lli\n",(UnsignedSize) List_isNotEmpty(list3));
-
-// 	List_trim(list2);
-// 	Pointer *pointer1 = pointer_encapsulate(List_getSource(list1),List_getLength(list1));
-// 	List *list4 = List_createFromMemory(pointer1,0,-1);
-// 	List_debug(list4,"createFromMemory");
-// 	for (UnsignedSize i = 0; i < 4; ++i) List_dequeue(list4);
-// 	List_debug(list4,"dequeue");
-// 	List_setLength(list4,32);
-// 	List_debug(list4,"setLength");
-// 	List_trim(list4);
-// 	List_debug(list4,"trim");
-
-// 	Pointer *pointer2 = pointer_encapsulate(List_getSource(list2),List_getLength(list2));
-// 	List *list5 = List_createFromPointer(pointer2);
-// 	List_debug(list5,"createFromPointer");
-// 	List_replace(list5,2,(Undefined) 199);
-// 	List_debug(list2,"replace list2");
-// 	List_debug(list5,"replace list5");
-
-// 	list1 = List_destroy(list1);
-// 	list2 = List_destroy(list2);
-// 	list3 = List_destroy(list3);
-// 	list4 = List_destroy(list4);
-// 	list5 = List_destroy(list5);
-
-	// test1();
-	test2();
-
+	operations();
+	benchmark(false);
+	benchmark(true);
 	return EXIT_SUCCESS;
 };

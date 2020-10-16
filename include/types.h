@@ -17,11 +17,10 @@
 #define DARK_CHARACTER     14
 #define DARK_NULL_STRING   15
 #define DARK_STRING        16
-#define DARK_BLOB          17
+#define DARK_BUFFER        17
 #define DARK_LIST          18
 #define DARK_MAP           19
-#define DARK_CONTAINER     20
-#define DARK_POINTER       21
+#define DARK_POINTER       20
 
 #define Boolean      bool
 #define Unsigned8    unsigned char
@@ -40,11 +39,10 @@
 #define NullString   char*
 #define Pointer      void*
 
-typedef struct _String    String;
-typedef struct _Blob      Blob;
-typedef struct _List      List;
-typedef struct _Map       Map;
-typedef struct _Container Container;
+typedef struct _String String;
+typedef struct _Buffer Buffer;
+typedef struct _List   List;
+typedef struct _Map    Map;
 
 typedef union
 {
@@ -64,10 +62,9 @@ typedef union
 	Character    character;
 	NullString   nullString;
 	String*      string;
-	Blob*        blob;
+	Buffer*      buffer;
 	List*        list;
 	Map*         map;
-	Container*   container;
 	Pointer      pointer;
 } Undefined;
 
@@ -77,10 +74,5 @@ typedef struct
 	Undefined value;
 } Defined;
 
-typedef Undefined (*ListMapFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE);
-typedef Boolean (*ListFilterFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE);
-typedef Undefined (*ListReduceFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined ACCUMULATOR);
-typedef Boolean (*ListSearchFunction)(List *LIST,UnsignedSize INDEX,Undefined VALUE,Undefined TARGET);
-
-typedef UnsignedSize (*MapHashFunction)(Undefined KEY,UnsignedSize HASH_SIZE);
-typedef Boolean (*MapDiffFunction)(Undefined TARGET,Undefined SOURCE);
+typedef Boolean (*CompareFunction)(Undefined,Undefined);
+typedef UnsignedSize (*HashFunction)(Undefined,UnsignedSize);

@@ -6,60 +6,51 @@ typedef struct
 thread_local UnsignedSize ExceptionBlock;
 thread_local Exception ExceptionGlobal;
 
-#routine exception_destroy(EXCEPTION)
-{
-	EXCEPTION.message = NULL;
-};
-
 #routine exception_panic(MESSAGE)
 {
 	printf("EXCEPTION: %s.\n",MESSAGE);
 	exit(EXIT_FAILURE);
 };
 
-#routine exception_catch(EXCEPTION,RETURN)
-{
-	if ((RETURN = EXCEPTION.message)) EXCEPTION.message = NULL;
-};
-
-#routine exception_globalThrowBreak(MESSAGE)
+#routine exception_throw(EXCEPTION,MESSAGE)
 {
 	if (!ExceptionBlock) exception_panic(MESSAGE);
-	ExceptionGlobal.message = MESSAGE;
+	EXCEPTION.message = MESSAGE;
+};
+
+#routine exception_routineThrow(EXCEPTION,MESSAGE)
+{
+	exception_throw(EXCEPTION,MESSAGE);
 	break;
+};
+
+#routine exception_routineBypass(EXCEPTION)
+{
+	if (EXCEPTION.message) break;
 };
 
 #routine exception_globalThrowExit(MESSAGE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	ExceptionGlobal.message = MESSAGE;
+	exception_throw(ExceptionGlobal,MESSAGE);
 	return;
 };
 
 #routine exception_globalThrowReturn(MESSAGE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	ExceptionGlobal.message = MESSAGE;
+	exception_throw(ExceptionGlobal,MESSAGE);
 	return 0;
 };
 
 #routine exception_globalThrowReturnCast(MESSAGE,#TYPE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	ExceptionGlobal.message = MESSAGE;
+	exception_throw(ExceptionGlobal,MESSAGE);
 	return (TYPE) 0;
 };
 
 #routine exception_globalThrowReturnValue(MESSAGE,VALUE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	ExceptionGlobal.message = MESSAGE;
+	exception_throw(ExceptionGlobal,MESSAGE);
 	return VALUE;
-};
-
-#routine exception_globalBypassBreak()
-{
-	if (ExceptionGlobal.message) break;
 };
 
 #routine exception_globalBypassExit()
@@ -82,35 +73,36 @@ thread_local Exception ExceptionGlobal;
 	if (ExceptionGlobal.message) return VALUE;
 };
 
+#routine exception_destroy(STRUCT)
+{
+	STRUCT->exception.message = NULL;
+};
+
 #routine exception_structThrowExit(STRUCT,MESSAGE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	STRUCT->exception.message = MESSAGE;
-	mutex_unlock(STRUCT->mutex);
+	exception_throw(STRUCT->exception,MESSAGE);
+	mutex_unlock(STRUCT);
 	return;
 };
 
 #routine exception_structThrowReturn(STRUCT,MESSAGE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	STRUCT->exception.message = MESSAGE;
-	mutex_unlock(STRUCT->mutex);
+	exception_throw(STRUCT->exception,MESSAGE);
+	mutex_unlock(STRUCT);
 	return 0;
 };
 
 #routine exception_structThrowReturnCast(STRUCT,MESSAGE,#TYPE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	STRUCT->exception.message = MESSAGE;
-	mutex_unlock(STRUCT->mutex);
+	exception_throw(STRUCT->exception,MESSAGE);
+	mutex_unlock(STRUCT);
 	return (TYPE) 0;
 };
 
 #routine exception_structThrowReturnValue(STRUCT,MESSAGE,VALUE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	STRUCT->exception.message = MESSAGE;
-	mutex_unlock(STRUCT->mutex);
+	exception_throw(STRUCT->exception,MESSAGE);
+	mutex_unlock(STRUCT);
 	return VALUE;
 };
 
@@ -118,7 +110,7 @@ thread_local Exception ExceptionGlobal;
 {
 	if (STRUCT->exception.message)
 	{
-		mutex_unlock(STRUCT->mutex);
+		mutex_unlock(STRUCT);
 		return;
 	};
 };
@@ -127,7 +119,7 @@ thread_local Exception ExceptionGlobal;
 {
 	if (STRUCT->exception.message)
 	{
-		mutex_unlock(STRUCT->mutex);
+		mutex_unlock(STRUCT);
 		return 0;
 	};
 };
@@ -136,7 +128,7 @@ thread_local Exception ExceptionGlobal;
 {
 	if (STRUCT->exception.message)
 	{
-		mutex_unlock(STRUCT->mutex);
+		mutex_unlock(STRUCT);
 		return (TYPE) 0;
 	};
 };
@@ -145,21 +137,14 @@ thread_local Exception ExceptionGlobal;
 {
 	if (STRUCT->exception.message)
 	{
-		mutex_unlock(STRUCT->mutex);
+		mutex_unlock(STRUCT);
 		return VALUE;
 	};
 };
 
-#routine exception_routineThrow(EXCEPTION,MESSAGE)
+#routine exception_getMessage(STRUCT,RETURN)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
-	EXCEPTION.message = MESSAGE;
-	break;
-};
-
-#routine exception_routineBypass(EXCEPTION)
-{
-	if (EXCEPTION.message) break;
+	if ((RETURN = STRUCT->exception.message)) STRUCT->exception.message = NULL;
 };
 
 void Exception_start(void)
@@ -181,7 +166,7 @@ void Exception_throw(NullString MESSAGE)
 NullString Exception_catch(void)
 {
 	NullString message;
-	exception_catch(ExceptionGlobal,message);
+	if ((message = ExceptionGlobal.message)) ExceptionGlobal.message = NULL;
 	return message;
 };
 

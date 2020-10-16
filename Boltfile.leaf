@@ -7,7 +7,7 @@
 		git-commit = "https://raw.githubusercontent.com/WellingtonDias/bolt-git-commit/master/index.js",
 		merge = "https://raw.githubusercontent.com/WellingtonDias/bolt-merge/master/index.js"
 	},
-	clean = [["./output/*",[".h",".c",".o",".a",".so"],""],["./output/",["list","map"],""]],
+	clean = [["./output/*",[".h",".c",".o",".a",".so"],""],["./output/",["buffer","string","list","map"],""]],
 	c-preprocess = "./output/DARK.c",
 	execute =
 	{
@@ -19,10 +19,10 @@
 		],
 		example =
 		[
+			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/buffer' './example/buffer.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
 			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/string' './example/string.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/blob' './example/blob.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			"gcc -std=c11 -Wall -Wextra -Wno-unused-parameter -Ofast -fPIC -o './output/list' './example/list.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
-			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/map' './example/map.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
+			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/list' './example/list.c' -I './output/' -L './output/' -l:libdark.a -lpthread"#,
+			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/map' './example/map.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
 		]
 	},
 	git-commit = "",
@@ -30,12 +30,17 @@
 	{
 		header =
 		{
-			input = [["./include/",["types","exception","container","list","map"],".h"]],
+			input = [["./include/",["types","exception","list","map"],".h"]],
 			output = "./output/DARK.h"
 		},
 		source =
 		{
-			input = [["./source/",["header","block","stream","mutex","exception","container","struct","list","map"],".c"]],
+			input =
+			[
+				"./source/header.c",
+				["./source/structure/common/",["data","mutex","exception"],".c"],
+				["./source/structure/",["list"#,"map"#],".c"]
+			],
 			output = "./output/DARK.c"
 		}
 	},
