@@ -9,7 +9,7 @@ typedef struct
 	MapPair*     pointer;
 	UnsignedSize length;
 	UnsignedSize capacity;
-} MapData;
+} MapBucket;
 
 struct _Map
 {
@@ -17,7 +17,7 @@ struct _Map
 	CompareFunction compareFunction;
 	UnsignedSize    length;
 	UnsignedSize    hashSize;
-	MapData*        data;
+	MapBucket*      bucket;
 	Mutex           mutex;
 	Exception       exception;
 };
@@ -31,41 +31,41 @@ struct _Map
 #routine key_search(MAP,KEY,RETURN1,RETURN2,RETURN3)
 {
 	key_hash(MAP,KEY,RETURN1);
-	for (RETURN2 = 0; RETURN2 < MAP->data[RETURN1].length; ++RETURN2)
+	for (RETURN2 = 0; RETURN2 < MAP->bucket[RETURN1].length; ++RETURN2)
 	{
 		if (!MAP->compareFunction)
 		{
-			if (KEY.unsignedSize == MAP->data[RETURN1].pointer[RETURN2].key.unsignedSize) break;
+			if (KEY.unsignedSize == MAP->bucket[RETURN1].pointer[RETURN2].key.unsignedSize) break;
 		}
 		else
 		{
-			if ((*MAP->compareFunction)(KEY,MAP->data[RETURN1].pointer[RETURN2].key)) break;
+			if ((*MAP->compareFunction)(KEY,MAP->bucket[RETURN1].pointer[RETURN2].key)) break;
 		};
 	};
-	RETURN3 = RETURN2 < MAP->data[RETURN1].length;
+	RETURN3 = RETURN2 < MAP->bucket[RETURN1].length;
 };
 
-#routine mapData_adjustCapacity(EXCEPTION,DATA,LENGTH)
+#routine mapBucket_adjustCapacity(EXCEPTION,BUCKET,LENGTH)
 {
 	#local UnsignedSize capacity;
 	capacity = 1;
 	while (capacity < LENGTH) capacity *= 2;
-	if (capacity != DATA.capacity)
+	if (capacity != BUCKET.capacity)
 	{
 		#local MapPair* pointer;
-		if (!(pointer = realloc(DATA.pointer,capacity * sizeof(MapPair)))) exception_routineThrow(EXCEPTION,"MEMORY: realloc");
-		DATA.pointer = pointer;
-		DATA.capacity = capacity;
+		if (!(pointer = realloc(BUCKET.pointer,capacity * sizeof(MapPair)))) exception_routineThrow(EXCEPTION,"MEMORY: realloc");
+		BUCKET.pointer = pointer;
+		BUCKET.capacity = capacity;
 	};
 };
 
 #routine map_insert(MAP,HASH,KEY,VALUE)
 {
-	mapData_adjustCapacity(MAP->exception,MAP->data[HASH],MAP->data[HASH].length + 1);
+	mapBucket_adjustCapacity(MAP->exception,MAP->bucket[HASH],MAP->bucket[HASH].length + 1);
 	exception_routineBypass(MAP->exception);
-	MAP->data[HASH].pointer[MAP->data[HASH].length].key = KEY;
-	MAP->data[HASH].pointer[MAP->data[HASH].length].value = VALUE;
-	++MAP->data[HASH].length;
+	MAP->bucket[HASH].pointer[MAP->bucket[HASH].length].key = KEY;
+	MAP->bucket[HASH].pointer[MAP->bucket[HASH].length].value = VALUE;
+	++MAP->bucket[HASH].length;
 	++MAP->length;
 };
 
@@ -78,12 +78,12 @@ Map *Map_create(UnsignedSize HASH_SIZE,HashFunction HASH_FUNCTION,CompareFunctio
 	map->compareFunction = COMPARE_FUNCTION;
 	map->length = 0;
 	map->hashSize = HASH_SIZE;
-	if (!(map->data = malloc(HASH_SIZE * sizeof(MapData)))) exception_globalThrowReturn("MEMORY: malloc");
+	if (!(map->bucket = malloc(HASH_SIZE * sizeof(MapBucket)))) exception_globalThrowReturn("MEMORY: malloc");
 	for (UnsignedSize hash = 0; hash < HASH_SIZE; ++hash)
 	{
-		if (!(map->data[hash].pointer = malloc(sizeof(MapPair)))) exception_globalThrowReturn("MEMORY: malloc");
-		map->data[hash].length = 0;
-		map->data[hash].capacity = 1;
+		if (!(map->bucket[hash].pointer = malloc(sizeof(MapPair)))) exception_globalThrowReturn("MEMORY: malloc");
+		map->bucket[hash].length = 0;
+		map->bucket[hash].capacity = 1;
 	};
 	return map;
 };
@@ -96,13 +96,13 @@ Map *Map_clone(Map *MAP)
 	map->compareFunction = MAP->compareFunction;
 	map->length = MAP->length;
 	map->hashSize = MAP->hashSize;
-	if (!(map->data = malloc(MAP->hashSize * sizeof(MapData)))) exception_globalThrowReturn("MEMORY: malloc");
+	if (!(map->bucket = malloc(MAP->hashSize * sizeof(MapBucket)))) exception_globalThrowReturn("MEMORY: malloc");
 	for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash)
 	{
-		if (!(map->data[hash].pointer = malloc(MAP->data[hash].length * sizeof(MapPair)))) exception_globalThrowReturn("MEMORY: malloc");
-		memcpy(map->data[hash].pointer,MAP->data[hash].pointer,MAP->data[hash].length * sizeof(MapPair));
-		map->data[hash].length = MAP->data[hash].length;
-		map->data[hash].capacity = MAP->data[hash].capacity;
+		if (!(map->bucket[hash].pointer = malloc(MAP->bucket[hash].length * sizeof(MapPair)))) exception_globalThrowReturn("MEMORY: malloc");
+		memcpy(map->bucket[hash].pointer,MAP->bucket[hash].pointer,MAP->bucket[hash].length * sizeof(MapPair));
+		map->bucket[hash].length = MAP->bucket[hash].length;
+		map->bucket[hash].capacity = MAP->bucket[hash].capacity;
 	};
 	return map;
 };
@@ -115,14 +115,14 @@ Map *Map_destroy(Map *MAP)
 	MAP->length = 0;
 	for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash)
 	{
-		free(MAP->data[hash].pointer);
-		MAP->data[hash].pointer = NULL;
-		MAP->data[hash].length = 0;
-		MAP->data[hash].capacity = 0;
+		free(MAP->bucket[hash].pointer);
+		MAP->bucket[hash].pointer = NULL;
+		MAP->bucket[hash].length = 0;
+		MAP->bucket[hash].capacity = 0;
 	}
 	MAP->hashSize = 0;
-	free(MAP->data);
-	MAP->data = NULL;
+	free(MAP->bucket);
+	MAP->bucket = NULL;
 	mutex_destroy(MAP);
 	exception_destroy(MAP);
 	free(MAP);
@@ -137,13 +137,13 @@ void Map_merge(Map *TARGET,Map *SOURCE)
 	{
 		Boolean found;
 		UnsignedSize hash2,index2;
-		for (UnsignedSize hash = 0; hash < SOURCE->hashSize; ++hash)
+		for (UnsignedSize hash1 = 0; hash1 < SOURCE->hashSize; ++hash1)
 		{
-			for (UnsignedSize index = 0; index < SOURCE->data[hash].length; ++index)
+			for (UnsignedSize index1 = 0; index1 < SOURCE->bucket[hash1].length; ++index1)
 			{
-				key_search(TARGET,SOURCE->data[hash].pointer[index].key,hash2,index2,found);
-				if (found) TARGET->data[hash2].pointer[index2].value = SOURCE->data[hash].pointer[index].value;
-				else {map_insert(TARGET,hash2,SOURCE->data[hash].pointer[index].key,SOURCE->data[hash].pointer[index].value)};
+				key_search(TARGET,SOURCE->bucket[hash1].pointer[index1].key,hash2,index2,found);
+				if (found) TARGET->bucket[hash2].pointer[index2].value = SOURCE->bucket[hash1].pointer[index1].value;
+				else map_insert(TARGET,hash2,SOURCE->bucket[hash1].pointer[index1].key,SOURCE->bucket[hash1].pointer[index1].value);
 			};
 		};
 	};
@@ -158,13 +158,13 @@ void Map_clear(Map *MAP)
 	{
 		for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash)
 		{
-			if (MAP->data[hash].length > 0)
+			if (MAP->bucket[hash].length > 0)
 			{
 				MapPair *pointer;
-				if (!(pointer = realloc(MAP->data[hash].pointer,sizeof(MapPair)))) exception_structThrowExit(MAP,"MEMORY: realloc");
-				MAP->data[hash].pointer = pointer;
-				MAP->data[hash].length = 0;
-				MAP->data[hash].capacity = 1;
+				if (!(pointer = realloc(MAP->bucket[hash].pointer,sizeof(MapPair)))) exception_structThrowExit(MAP,"MEMORY: realloc");
+				MAP->bucket[hash].pointer = pointer;
+				MAP->bucket[hash].length = 0;
+				MAP->bucket[hash].capacity = 1;
 			};
 		};
 		MAP->length = 0;
@@ -181,13 +181,13 @@ Boolean Map_compare(Map *MAP1,Map *MAP2)
 	{
 		Boolean found;
 		UnsignedSize hash2,index2;
-		for (UnsignedSize hash = 0; hash < MAP1->hashSize; ++hash)
+		for (UnsignedSize hash1 = 0; hash1 < MAP1->hashSize; ++hash1)
 		{
-			for (UnsignedSize index = 0; index < MAP1->data[hash].length; ++index)
+			for (UnsignedSize index1 = 0; index1 < MAP1->bucket[hash1].length; ++index1)
 			{
-				key_search(MAP2,MAP1->data[hash].pointer[index].key,hash2,index2,found);
-				if (!MAP1->compareFunction) comparison = found && (MAP1->data[hash].pointer[index].value.unsignedSize == MAP2->data[hash2].pointer[index2].value.unsignedSize);
-				else comparison = found && ((*MAP1->compareFunction)(MAP1->data[hash].pointer[index].value,MAP2->data[hash2].pointer[index2].value));
+				key_search(MAP2,MAP1->bucket[hash1].pointer[index1].key,hash2,index2,found);
+				if (!MAP1->compareFunction) comparison = found && (MAP1->bucket[hash1].pointer[index1].value.unsignedSize == MAP2->bucket[hash2].pointer[index2].value.unsignedSize);
+				else comparison = found && ((*MAP1->compareFunction)(MAP1->bucket[hash1].pointer[index1].value,MAP2->bucket[hash2].pointer[index2].value));
 				if (!comparison) break;
 			};
 		};
@@ -210,8 +210,8 @@ void Map_insert(Map *MAP,Undefined KEY,Undefined VALUE)
 
 #routine map_replace(MAP,HASH,INDEX,VALUE,RETURN)
 {
-	RETURN = MAP->data[HASH].pointer[INDEX].value;
-	MAP->data[HASH].pointer[INDEX].value = VALUE;
+	RETURN = MAP->bucket[HASH].pointer[INDEX].value;
+	MAP->bucket[HASH].pointer[INDEX].value = VALUE;
 };
 
 Undefined Map_replace(Map *MAP,Undefined KEY,Undefined VALUE)
@@ -243,8 +243,7 @@ Undefined Map_set(Map *MAP,Undefined KEY,Undefined VALUE)
 Boolean Map_searchKey(Map *MAP,Undefined KEY)
 {
 	Boolean found;
-	UnsignedSize hash;
-	UnsignedSize index ;
+	UnsignedSize hash,index;
 	mutex_lock(MAP);
 	key_search(MAP,KEY,hash,index,found);
 	mutex_unlock(MAP);
@@ -257,15 +256,15 @@ Boolean Map_searchValue(Map *MAP,Undefined VALUE)
 	mutex_lock(MAP);
 	for (; hash < MAP->hashSize; ++hash)
 	{
-		for (UnsignedSize index = 0; index < MAP->data[hash].length; ++index)
+		for (UnsignedSize index = 0; index < MAP->bucket[hash].length; ++index)
 		{
 			if (!MAP->compareFunction)
 			{
-				if (VALUE.unsignedSize == MAP->data[hash].pointer[index].value.unsignedSize) goto found;
+				if (VALUE.unsignedSize == MAP->bucket[hash].pointer[index].value.unsignedSize) goto found;
 			}
 			else
 			{
-				if ((*MAP->compareFunction)(VALUE,MAP->data[hash].pointer[index].value)) goto found;
+				if ((*MAP->compareFunction)(VALUE,MAP->bucket[hash].pointer[index].value)) goto found;
 			};
 		};
 	};
@@ -278,26 +277,26 @@ Boolean Map_searchValue(Map *MAP,Undefined VALUE)
 Undefined Map_getKey(Map *MAP,Undefined VALUE)
 {
 	UnsignedSize hash = 0;
-	UnsignedSize index = 0;
+	UnsignedSize index;
 	mutex_lock(MAP);
 	if (MAP->length == 0) exception_structThrowReturnCast(MAP,"MAP: empty",Undefined);
 	for (; hash < MAP->hashSize; ++hash)
 	{
-		for (index = 0; index < MAP->data[hash].length; ++index)
+		for (index = 0; index < MAP->bucket[hash].length; ++index)
 		{
 			if (!MAP->compareFunction)
 			{
-				if (VALUE.unsignedSize == MAP->data[hash].pointer[index].value.unsignedSize) goto found;
+				if (VALUE.unsignedSize == MAP->bucket[hash].pointer[index].value.unsignedSize) goto found;
 			}
 			else
 			{
-				if ((*MAP->compareFunction)(VALUE,MAP->data[hash].pointer[index].value)) goto found;
+				if ((*MAP->compareFunction)(VALUE,MAP->bucket[hash].pointer[index].value)) goto found;
 			};
 		};
 	};
 	found: ;
 	if (hash == MAP->hashSize) exception_structThrowReturnCast(MAP,"invalid VALUE",Undefined);
-	Undefined key = MAP->data[hash].pointer[index].key;
+	Undefined key = MAP->bucket[hash].pointer[index].key;
 	mutex_unlock(MAP);
 	return key;
 };
@@ -309,7 +308,7 @@ Undefined Map_getValue(Map *MAP,Undefined KEY)
 	mutex_lock(MAP);
 	key_search(MAP,KEY,hash,index,found);
 	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
-	Undefined value = MAP->data[hash].pointer[index].value;
+	Undefined value = MAP->bucket[hash].pointer[index].value;
 	mutex_unlock(MAP);
 	return value;
 };
@@ -321,10 +320,10 @@ Undefined Map_remove(Map *MAP,Undefined KEY)
 	mutex_lock(MAP);
 	key_search(MAP,KEY,hash,index,found);
 	if (!found) exception_structThrowReturnCast(MAP,"invalid KEY",Undefined);
-	--MAP->data[hash].length;
-	Undefined value = MAP->data[hash].pointer[index].value;
-	if (index < MAP->data[hash].length) memcpy(MAP->data[hash].pointer + index,MAP->data[hash].pointer + index + 1,(MAP->data[hash].length - index) * sizeof(MapPair));
-	mapData_adjustCapacity(MAP->exception,MAP->data[hash],MAP->data[hash].length);
+	--MAP->bucket[hash].length;
+	Undefined value = MAP->bucket[hash].pointer[index].value;
+	if (index < MAP->bucket[hash].length) memcpy(MAP->bucket[hash].pointer + index,MAP->bucket[hash].pointer + index + 1,(MAP->bucket[hash].length - index) * sizeof(MapPair));
+	mapBucket_adjustCapacity(MAP->exception,MAP->bucket[hash],MAP->bucket[hash].length);
 	exception_structBypassReturnCast(MAP,Undefined);
 	--MAP->length;
 	mutex_unlock(MAP);
@@ -334,18 +333,16 @@ Undefined Map_remove(Map *MAP,Undefined KEY)
 void Map_swap(Map *MAP,Undefined KEY1,Undefined KEY2)
 {
 	Boolean found1,found2;
-	UnsignedSize hash,hash2;
-	UnsignedSize index = 0;
-	UnsignedSize index2 = 0;
+	UnsignedSize hash,hash2,index1,index2;
 	mutex_lock(MAP);
-	key_search(MAP,KEY1,hash,index,found1);
+	key_search(MAP,KEY1,hash,index1,found1);
 	key_search(MAP,KEY2,hash2,index2,found2);
 	if (!found1 || !found2) exception_structBypassExit(MAP);
-	Undefined value = MAP->data[hash].pointer[index].value;
-	MAP->data[hash].pointer[index].value = MAP->data[hash2].pointer[index2].value;
-	MAP->data[hash2].pointer[index2].value = value;
+	Undefined value = MAP->bucket[hash].pointer[index1].value;
+	MAP->bucket[hash].pointer[index1].value = MAP->bucket[hash2].pointer[index2].value;
+	MAP->bucket[hash2].pointer[index2].value = value;
 	mutex_unlock(MAP);
-// };
+};
 
 void Map_setHashFunction(Map *MAP,HashFunction HASH_FUNCTION)
 {
@@ -407,27 +404,28 @@ void Map_setHashSize(Map *MAP,UnsignedSize HASH_SIZE)
 	UnsignedSize hash2;
 	mutex_lock(MAP);
 	if ((HASH_SIZE == 0) || (HASH_SIZE == MAP->hashSize)) exception_structThrowExit(MAP,"invalid HASH_SIZE");
-	MapData *data = MAP->data;
+	MapBucket *bucket = MAP->bucket;
 	MAP->length = 0;
-	if (!(MAP->data = malloc(HASH_SIZE * sizeof(MapData)))) exception_structThrowExit(MAP,"MEMORY: malloc");
+	if (!(MAP->bucket = malloc(HASH_SIZE * sizeof(MapBucket)))) exception_structThrowExit(MAP,"MEMORY: malloc");
 	for (; hash1 < HASH_SIZE; ++hash1)
 	{
-		if (!(MAP->data[hash1].pointer = malloc(sizeof(MapPair)))) exception_structThrowExit(MAP,"MEMORY: malloc");
-		MAP->data[hash1].length = 0;
-		MAP->data[hash1].capacity = 1;
+		if (!(MAP->bucket[hash1].pointer = malloc(sizeof(MapPair)))) exception_structThrowExit(MAP,"MEMORY: malloc");
+		MAP->bucket[hash1].length = 0;
+		MAP->bucket[hash1].capacity = 1;
 	};
 	for (hash1 = 0; hash1 < MAP->hashSize; ++hash1)
 	{
-		for (UnsignedSize index = 0; index < data[hash1].length; ++index)
+		for (UnsignedSize index = 0; index < bucket[hash1].length; ++index)
 		{
-			key_hash(MAP,data[hash1].pointer[index].key,hash2);
-			map_insert(MAP,hash2,data[hash1].pointer[index].key,data[hash1].pointer[index].value);
+			key_hash(MAP,bucket[hash1].pointer[index].key,hash2);
+			map_insert(MAP,hash2,bucket[hash1].pointer[index].key,bucket[hash1].pointer[index].value);
 		};
-		free(data[hash1].pointer);
-		data[hash1].pointer = NULL;
-		data[hash1].length = 0;
-		data[hash1].capacity = 0;
+		free(bucket[hash1].pointer);
+		bucket[hash1].pointer = NULL;
+		bucket[hash1].length = 0;
+		bucket[hash1].capacity = 0;
 	};
+	free(bucket);
 	MAP->hashSize = HASH_SIZE;
 	mutex_unlock(MAP);
 };
@@ -473,7 +471,7 @@ void Map_debug(Map *MAP,NullString MESSAGE)
 	{
 		for (UnsignedSize hash = 0; hash < MAP->hashSize; ++hash)
 		{
-			for (UnsignedSize index = 0; index < MAP->data[hash].length; ++index) printf("%lli=%lli ",MAP->data[hash].pointer[index].key.unsignedSize,MAP->data[hash].pointer[index].value.unsignedSize);
+			for (UnsignedSize index = 0; index < MAP->bucket[hash].length; ++index) printf("%lli=%lli ",MAP->bucket[hash].pointer[index].key.unsignedSize,MAP->bucket[hash].pointer[index].value.unsignedSize);
 		};
 	};
 	printf("} } #%s\n",MESSAGE);
