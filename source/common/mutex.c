@@ -1,12 +1,7 @@
-typedef struct
-{
-	mtx_t* lock;
-} Mutex;
-
 #routine mutex_enable(STRUCT)
 {
 	#local mtx_t* lock;
-	if (!(lock = malloc(sizeof(mtx_t)))) exception_routineThrow(STRUCT->exception,"MEMORY: malloc");
+	if ((lock = malloc(sizeof(mtx_t))) == NULL) exception_routineThrow(STRUCT->exception,"MEMORY: malloc");
 	if (mtx_init(lock,mtx_plain) == thrd_error) exception_routineThrow(STRUCT->exception,"MUTEX: init");
 	STRUCT->mutex.lock = lock;
 };
@@ -21,29 +16,29 @@ typedef struct
 
 #routine mutex_destroy(STRUCT)
 {
-	if (STRUCT->mutex.lock) mutex_disable(STRUCT);
+	if (STRUCT->mutex.lock != NULL) mutex_disable(STRUCT);
 };
 
 #routine mutex_lock(STRUCT)
 {
-	if (STRUCT->mutex.lock) mtx_lock(STRUCT->mutex.lock);
+	if (STRUCT->mutex.lock != NULL) mtx_lock(STRUCT->mutex.lock);
 };
 
 #routine mutex_unlock(STRUCT)
 {
-	if (STRUCT->mutex.lock) mtx_unlock(STRUCT->mutex.lock);
+	if (STRUCT->mutex.lock != NULL) mtx_unlock(STRUCT->mutex.lock);
 };
 
 #routine mutex_setLock(STRUCT,LOCK)
 {
 	if (LOCK)
 	{
-		if (STRUCT->mutex.lock) exception_routineThrow(STRUCT->exception,"invalid LOCK");
+		if (STRUCT->mutex.lock != NULL) exception_routineThrow(STRUCT->exception,"invalid LOCK");
 		mutex_enable(STRUCT);
 	}
 	else
 	{
-		if (!(STRUCT->mutex.lock)) exception_routineThrow(STRUCT->exception,"invalid LOCK");
+		if (STRUCT->mutex.lock == NULL) exception_routineThrow(STRUCT->exception,"invalid LOCK");
 		mutex_disable(STRUCT);
 	};
 };

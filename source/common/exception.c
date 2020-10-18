@@ -1,8 +1,3 @@
-typedef struct
-{
-	NullString message;
-} Exception;
-
 thread_local UnsignedSize ExceptionBlock;
 thread_local Exception ExceptionGlobal;
 
@@ -14,7 +9,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_throw(EXCEPTION,MESSAGE)
 {
-	if (!ExceptionBlock) exception_panic(MESSAGE);
+	if (ExceptionBlock == 0) exception_panic(MESSAGE);
 	EXCEPTION.message = MESSAGE;
 };
 
@@ -26,7 +21,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_routineBypass(EXCEPTION)
 {
-	if (EXCEPTION.message) break;
+	if (EXCEPTION.message != NULL) break;
 };
 
 #routine exception_globalThrowExit(MESSAGE)
@@ -55,22 +50,22 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_globalBypassExit()
 {
-	if (ExceptionGlobal.message) return;
+	if (ExceptionGlobal.message != NULL) return;
 };
 
 #routine exception_globalBypassReturn()
 {
-	if (ExceptionGlobal.message) return 0;
+	if (ExceptionGlobal.message != NULL) return 0;
 };
 
 #routine exception_globalBypassReturnCast(#TYPE)
 {
-	if (ExceptionGlobal.message) return (TYPE) 0;
+	if (ExceptionGlobal.message != NULL) return (TYPE) 0;
 };
 
 #routine exception_globalBypassReturnValue(VALUE)
 {
-	if (ExceptionGlobal.message) return VALUE;
+	if (ExceptionGlobal.message != NULL) return VALUE;
 };
 
 #routine exception_destroy(STRUCT)
@@ -108,7 +103,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_structBypassExit(STRUCT)
 {
-	if (STRUCT->exception.message)
+	if (STRUCT->exception.message != NULL)
 	{
 		mutex_unlock(STRUCT);
 		return;
@@ -117,7 +112,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_structBypassReturn(STRUCT)
 {
-	if (STRUCT->exception.message)
+	if (STRUCT->exception.message != NULL)
 	{
 		mutex_unlock(STRUCT);
 		return 0;
@@ -126,7 +121,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_structBypassReturnCast(STRUCT,#TYPE)
 {
-	if (STRUCT->exception.message)
+	if (STRUCT->exception.message != NULL)
 	{
 		mutex_unlock(STRUCT);
 		return (TYPE) 0;
@@ -135,7 +130,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_structBypassReturnValue(STRUCT,VALUE)
 {
-	if (STRUCT->exception.message)
+	if (STRUCT->exception.message != NULL)
 	{
 		mutex_unlock(STRUCT);
 		return VALUE;
@@ -144,7 +139,7 @@ thread_local Exception ExceptionGlobal;
 
 #routine exception_getMessage(STRUCT,RETURN)
 {
-	if ((RETURN = STRUCT->exception.message)) STRUCT->exception.message = NULL;
+	if ((RETURN = STRUCT->exception.message) != NULL) STRUCT->exception.message = NULL;
 };
 
 void Exception_start(void)
@@ -154,7 +149,7 @@ void Exception_start(void)
 
 void Exception_end(void)
 {
-	if (!ExceptionBlock) exception_panic("There is no exception block to end");
+	if (ExceptionBlock == 0) exception_panic("There is no exception block to end");
 	ExceptionBlock -= 1;
 };
 
@@ -166,7 +161,7 @@ void Exception_throw(NullString MESSAGE)
 NullString Exception_catch(void)
 {
 	NullString message;
-	if ((message = ExceptionGlobal.message)) ExceptionGlobal.message = NULL;
+	if ((message = ExceptionGlobal.message) != NULL) ExceptionGlobal.message = NULL;
 	return message;
 };
 

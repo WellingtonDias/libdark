@@ -51,7 +51,7 @@ void operations(void)
 
 void benchmark(Boolean LOCK)
 {
-	printf("BENCHMARK(lock=%d)\n",LOCK);
+	printf("BENCHMARK(mutex=%s)\n",LOCK? "true" : "false");
 
 	List *list = List_create(NULL);
 	if (LOCK) List_setMutex(list,true);

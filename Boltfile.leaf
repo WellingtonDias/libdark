@@ -7,7 +7,7 @@
 		git-commit = "https://raw.githubusercontent.com/WellingtonDias/bolt-git-commit/master/index.js",
 		merge = "https://raw.githubusercontent.com/WellingtonDias/bolt-merge/master/index.js"
 	},
-	clean = [["./output/*",[".h",".c",".o",".a",".so"],""],["./output/",["buffer","string","list","map"],""]],
+	clean = [["./output/*",[".h",".c",".o",".a",".so"],""],["./output/",["blob","string","list","map"],""]],
 	c-preprocess = "./output/DARK.c",
 	execute =
 	{
@@ -19,7 +19,7 @@
 		],
 		example =
 		[
-			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/buffer' './example/buffer.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
+			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/blob' './example/blob.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
 			# "gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/string' './example/string.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
 			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/list' './example/list.c' -I './output/' -L './output/' -l:libdark.a -lpthread",
 			"gcc -std=c11 -Wall -Wextra -Ofast -fPIC -o './output/map' './example/map.c' -I './output/' -L './output/' -l:libdark.a -lpthread"
@@ -30,16 +30,16 @@
 	{
 		header =
 		{
-			input = [["./include/",["types","exception","list","map"],".h"]],
+			input = [["./include/",["types","exception","string","blob","list","map","container"],".h"]],
 			output = "./output/DARK.h"
 		},
 		source =
 		{
 			input =
 			[
-				"./source/header.c",
-				["./source/structure/common/",["bucket","mutex","exception"],".c"],
-				["./source/structure/",["list","map"],".c"]
+				["./source/",["header","types"],".c"],
+				["./source/common/",["data","mutex","exception"],".c"],
+				["./source/",["string","blob","list","map","container"],".c"]
 			],
 			output = "./output/DARK.c"
 		}
